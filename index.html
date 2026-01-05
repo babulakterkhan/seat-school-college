@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Exam Seat Plan - Class & Section</title>
+    <title>Exam Seat Plan - Auto Save Version</title>
     <style>
         @page {
             size: A4;
@@ -31,7 +31,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin-left: 10px;
+            margin: 5px;
         }
         .input-field {
             padding: 6px;
@@ -98,77 +98,128 @@
 </head>
 <body>
 <div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-  <h3>অনুগ্রহ করে পাসওয়ার্ড দিন</h3>
+  <h3>অনুগ্রহ করে পাসওয়ার্ড দিন</h3>
   <input type="password" id="pass-input" style="padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc;">
   <button onclick="checkPass()" style="padding:10px 20px; cursor:pointer; background:#28a745; color:white; border:none; border-radius:5px;">Login</button>
-  <p id="error-msg" style="color:red; display:none;">ভুল পাসওয়ার্ড!</p>
+  <p id="error-msg" style="color:red; display:none;">ভুল পাসওয়ার্ড!</p>
 </div>
 
+<div class="no-print">
+    <strong>Seat Plan Settings:</strong><br>
+    Institute: <input type="text" id="instName" placeholder="ইন্সটিটিউটের নাম" style="width: 300px;" class="input-field" oninput="saveAndGenerate()">
+    Exam: <input type="text" id="examType" value="ANNUAL EXAM" style="width: 150px;" class="input-field" oninput="saveAndGenerate()"> 
+    Year: <input type="text" id="examYear" value="2026" style="width: 60px;" class="input-field" oninput="saveAndGenerate()"><br>
+    
+    Class: <input type="text" id="className" value="Class-10" style="width: 100px;" class="input-field" oninput="saveAndGenerate()"> 
+    Section: 
+    <select id="sectionName" class="input-field" onchange="saveAndGenerate()">
+        <option value="A">Section: A</option>
+        <option value="B">Section: B</option>
+        <option value="C">Section: C</option>
+        <option value="N/A">None</option>
+    </select>
+    
+    Group: 
+    <select id="groupName" class="input-field" onchange="saveAndGenerate()">
+        <option value="N/A">None</option>
+        <option value="Science">Science</option>
+        <option value="Humanities">Humanities</option>
+        <option value="Business Studies">Business Studies</option>
+    </select>
+    <br>
+    Roll: <input type="number" id="start" value="1" style="width: 50px;" class="input-field" oninput="saveAndGenerate()"> to 
+    <input type="number" id="end" value="10" style="width: 50px;" class="input-field" oninput="saveAndGenerate()">
+    
+    <button class="btn" style="background-color: #007bff;" onclick="window.print()">Print Now</button>
+    <button class="btn" style="background-color: #dc3545;" onclick="clearData()">Clear All Data</button>
+</div>
+
+<div class="container" id="card-container"></div>
+
 <script>
-function checkPass() {
-  const input = document.getElementById('pass-input').value;
-  const correctPass = "12345678"; // আপনার পাসওয়ার্ড এখানে লিখুন
-  
-  if (input === correctPass) {
-    document.getElementById('login-screen').style.display = 'none';
-  } else {
-    document.getElementById('error-msg').style.display = 'block';
-  }
-}
-</script>
+    // পাসওয়ার্ড চেক
+    function checkPass() {
+      const input = document.getElementById('pass-input').value;
+      const correctPass = "12345678"; 
+      if (input === correctPass) {
+        document.getElementById('login-screen').style.display = 'none';
+      } else {
+        document.getElementById('error-msg').style.display = 'block';
+      }
+    }
 
-    <div class="no-print">
-        <strong>Seat Plan Settings:</strong><br>
-        Institute: <input type="text" id="instName" placeholder="ইন্সটিটিউটের নাম" style="width: 300px;" class="input-field">
-        Exam: <input type="text" id="examType" value="ANNUAL EXAM" style="width: 150px;" class="input-field"> 
-        Year: <input type="text" id="examYear" value="2026" style="width: 60px;" class="input-field"><br>
+    // ডাটা সেভ এবং জেনারেট
+    function saveAndGenerate() {
+        const data = {
+            inst: document.getElementById('instName').value,
+            exam: document.getElementById('examType').value,
+            year: document.getElementById('examYear').value,
+            cls: document.getElementById('className').value,
+            sec: document.getElementById('sectionName').value,
+            grp: document.getElementById('groupName').value,
+            start: document.getElementById('start').value,
+            end: document.getElementById('end').value
+        };
+        localStorage.setItem('seatPlanData', JSON.stringify(data));
+        generateCards();
+    }
+
+    function generateCards() {
+        const instName = document.getElementById('instName').value || "YOUR INSTITUTE NAME";
+        const examType = document.getElementById('examType').value;
+        const exYear = document.getElementById('examYear').value;
+        const className = document.getElementById('className').value;
+        const sectionName = document.getElementById('sectionName').value;
+        const groupName = document.getElementById('groupName').value;
+        const start = parseInt(document.getElementById('start').value) || 1;
+        const end = parseInt(document.getElementById('end').value) || 1;
         
-        Class: <input type="text" id="className" value="Class-10" style="width: 100px;" class="input-field"> 
-        Section: 
-        <select id="sectionName" class="input-field">
-            <option value="A">Section: A</option>
-            <option value="B">Section: B</option>
-            <option value="C">Section: C</option>
-            <option value="N/A">None</option>
-        </select> |
-        Roll: <input type="number" id="start" value="1" style="width: 50px;" class="input-field"> to 
-        <input type="number" id="end" value="10" style="width: 50px;" class="input-field">
-        
-        <button class="btn" onclick="generateCards()">Update List</button>
-        <button class="btn" style="background-color: #007bff;" onclick="window.print()">Print Now</button>
-    </div>
+        const container = document.getElementById('card-container');
+        container.innerHTML = '';
 
-    <div class="container" id="card-container"></div>
-
-    <script>
-        function generateCards() {
-            const instName = document.getElementById('instName').value || "YOUR INSTITUTE NAME";
-            const examType = document.getElementById('examType').value;
-            const exYear = document.getElementById('examYear').value;
-            const className = document.getElementById('className').value;
-            const sectionName = document.getElementById('sectionName').value;
-            const start = parseInt(document.getElementById('start').value);
-            const end = parseInt(document.getElementById('end').value);
+        for (let i = start; i <= end; i++) {
+            let sectionDisplay = sectionName === "N/A" ? "" : ` | Sec: ${sectionName}`;
+            let groupDisplay = groupName === "N/A" ? "" : ` (${groupName})`;
             
-            const container = document.getElementById('card-container');
-            container.innerHTML = '';
-
-            for (let i = start; i <= end; i++) {
-                let sectionDisplay = sectionName === "N/A" ? "" : ` | Section: ${sectionName}`;
-                container.innerHTML += `
-                    <div class="seat-card">
-                        <div class="inner-border">
-                            <div class="institute-name">${instName}</div>
-                            <div class="exam-name">${examType}-${exYear}</div>
-                            <div class="details-text">Class: ${className}${sectionDisplay}</div>
-                            <div class="roll">Roll-${i}</div>
-                        </div>
+            container.innerHTML += `
+                <div class="seat-card">
+                    <div class="inner-border">
+                        <div class="institute-name">${instName}</div>
+                        <div class="exam-name">${examType}-${exYear}</div>
+                        <div class="details-text">Class: ${className}${groupDisplay}${sectionDisplay}</div>
+                        <div class="roll">Roll-${i}</div>
                     </div>
-                `;
-            }
+                </div>
+            `;
+        }
+    }
+
+    // ডাটা লোড করা
+    function loadData() {
+        const savedData = localStorage.getItem('seatPlanData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            document.getElementById('instName').value = data.inst || "";
+            document.getElementById('examType').value = data.exam || "ANNUAL EXAM";
+            document.getElementById('examYear').value = data.year || "2026";
+            document.getElementById('className').value = data.cls || "Class-10";
+            document.getElementById('sectionName').value = data.sec || "A";
+            document.getElementById('groupName').value = data.grp || "N/A";
+            document.getElementById('start').value = data.start || 1;
+            document.getElementById('end').value = data.end || 10;
         }
         generateCards();
-    </script>
+    }
 
+    // সব ডাটা রিসেট করা
+    function clearData() {
+        if(confirm("সব ডাটা মুছে ফেলতে চান?")) {
+            localStorage.removeItem('seatPlanData');
+            location.reload();
+        }
+    }
+
+    window.onload = loadData;
+</script>
 </body>
 </html>
