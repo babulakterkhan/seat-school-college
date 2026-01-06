@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Exam Seat Plan - Auto Save Version</title>
+    <title>Exam Seat Plan - Backup System</title>
     <style>
         @page {
             size: A4;
@@ -129,15 +129,17 @@
     <br>
     Roll: <input type="number" id="start" value="1" style="width: 50px;" class="input-field" oninput="saveAndGenerate()"> to 
     <input type="number" id="end" value="10" style="width: 50px;" class="input-field" oninput="saveAndGenerate()">
-    
+    <br>
     <button class="btn" style="background-color: #007bff;" onclick="window.print()">Print Now</button>
+    <button class="btn" style="background-color: #6f42c1;" onclick="downloadJSON()">Backup (JSON)</button>
+    <label for="uploadJSON" class="btn" style="background-color: #fd7e14; display: inline-block;">Restore (Upload)</label>
+    <input type="file" id="uploadJSON" style="display:none;" accept=".json" onchange="uploadJSON(event)">
     <button class="btn" style="background-color: #dc3545;" onclick="clearData()">Clear All Data</button>
 </div>
 
 <div class="container" id="card-container"></div>
 
 <script>
-    // পাসওয়ার্ড চেক
     function checkPass() {
       const input = document.getElementById('pass-input').value;
       const correctPass = "12345678"; 
@@ -148,7 +150,6 @@
       }
     }
 
-    // ডাটা সেভ এবং জেনারেট
     function saveAndGenerate() {
         const data = {
             inst: document.getElementById('instName').value,
@@ -194,16 +195,15 @@
         }
     }
 
-    // ডাটা লোড করা
     function loadData() {
         const savedData = localStorage.getItem('seatPlanData');
         if (savedData) {
             const data = JSON.parse(savedData);
             document.getElementById('instName').value = data.inst || "";
-            document.getElementById('examType').value = data.exam || "ANNUAL EXAM";
-            document.getElementById('examYear').value = data.year || "2026";
-            document.getElementById('className').value = data.cls || "Class-10";
-            document.getElementById('sectionName').value = data.sec || "A";
+            document.getElementById('examType').value = data.exam || "";
+            document.getElementById('examYear').value = data.year || "";
+            document.getElementById('className').value = data.cls || "";
+            document.getElementById('sectionName').value = data.sec || "N/A";
             document.getElementById('groupName').value = data.grp || "N/A";
             document.getElementById('start').value = data.start || 1;
             document.getElementById('end').value = data.end || 10;
@@ -211,7 +211,35 @@
         generateCards();
     }
 
-    // সব ডাটা রিসেট করা
+    // ব্যাকআপ ডাউনলোড ফাংশন
+    function downloadJSON() {
+        const savedData = localStorage.getItem('seatPlanData');
+        if (!savedData) { alert("কোনো ডাটা নেই!"); return; }
+        const blob = new Blob([savedData], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Seat_Plan_Backup_${new Date().toLocaleDateString()}.json`;
+        a.click();
+    }
+
+    // ব্যাকআপ আপলোড ফাংশন
+    function uploadJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if(confirm("আগের ডাটা মুছে ফাইল থেকে রিস্টোর করবেন?")) {
+                    localStorage.setItem('seatPlanData', JSON.stringify(data));
+                    location.reload();
+                }
+            } catch (err) { alert("সঠিক JSON ফাইল নয়!"); }
+        };
+        reader.readAsText(file);
+    }
+
     function clearData() {
         if(confirm("সব ডাটা মুছে ফেলতে চান?")) {
             localStorage.removeItem('seatPlanData');
