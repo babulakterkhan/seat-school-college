@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Exam Management Tool - Smart Hide Subject</title>
+    <title>Exam Management Tool - Pro Update v10</title>
     <style>
         body { font-family: 'SolaimanLipi', Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
         .tab-bar { background: #2c3e50; padding: 12px; text-align: center; position: sticky; top: 0; z-index: 10000; }
@@ -16,7 +16,7 @@
         .box-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; display: block; color: #2c3e50; }
         
         .input-field { padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin: 5px; font-size: 14px; }
-        .full-textarea { width: 95%; height: 60px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; resize: none; margin-bottom: 15px; font-family: inherit; }
+        .full-textarea { width: 95%; height: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; resize: none; margin-bottom: 10px; font-family: inherit; font-size: 13px; }
         
         .btn-container { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
         .btn { padding: 10px 20px; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
@@ -32,7 +32,8 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { border: 1px solid #000; padding: 5px; text-align: center; }
         
-        .table-in { width: 98%; border: none; text-align: center; outline: none; background: transparent; font-size: 15px; font-family: inherit; appearance: none; }
+        .total-row { font-weight: bold; background-color: #f8f9fa; }
+        .table-in { width: 98%; border: none; text-align: center; outline: none; background: transparent; font-size: 14px; font-family: inherit; appearance: none; }
 
         .header-info-row { display: flex; justify-content: space-between; margin: 10px 0; font-weight: bold; font-size: 16px; border-bottom: 1px solid #000; padding-bottom: 5px; }
 
@@ -88,12 +89,11 @@
         <div style="display:flex; gap:10px; margin-top:10px;">
             <div style="flex:1;">শিক্ষকদের তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateAllSelects(); saveData()">শিক্ষক ১, শিক্ষক ২</textarea></div>
             <div style="flex:1;">পদবী তালিকা: <textarea id="rDesig" class="full-textarea" oninput="updateAllSelects(); saveData()">প্রভাষক, সহকারী শিক্ষক</textarea></div>
+            <div style="flex:1;">প্রতিষ্ঠানের তালিকা: <textarea id="rInstList" class="full-textarea" oninput="updateAllSelects(); saveData()">নিজ প্রতিষ্ঠান, অন্য প্রতিষ্ঠান ১</textarea></div>
         </div>
         <div class="btn-container">
             <button class="btn btn-blue" onclick="addRow('roster')">+ নতুন সারি</button>
             <button class="btn btn-yellow" onclick="smartMerge('rBody')">স্মার্ট মার্জ</button>
-            <button class="btn btn-purple" onclick="exportJSON()">Backup</button>
-            <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">Restore</button>
             <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
         </div>
     </div>
@@ -108,7 +108,7 @@
             <p style="font-weight:bold; text-decoration:underline;">শিক্ষক/পরিদর্শকদের ডিউটি রোস্টার</p>
         </div>
         <table>
-            <thead><tr><th width="10%">কক্ষ</th><th width="35%">শিক্ষক</th><th width="25%">পদবী</th><th width="30%">স্বাক্ষর</th></tr></thead>
+            <thead><tr><th width="8%">কক্ষ</th><th width="25%">শিক্ষক</th><th width="20%">পদবী</th><th width="22%">প্রতিষ্ঠানের নাম</th><th width="25%">স্বাক্ষর</th></tr></thead>
             <tbody id="rBody"></tbody>
         </table>
     </div>
@@ -119,12 +119,9 @@
         <span class="box-title">রেজিস্টার কন্ট্রোল প্যানেল</span>
         বিষয়: <input type="text" id="regSub" class="input-field" style="width:200px;" oninput="saveData()">
         তারিখ: <input type="text" id="regDate" class="input-field" style="width:150px;" oninput="saveData()">
-        <textarea id="regStaffList" class="full-textarea" oninput="updateAllSelects(); saveData()">পরীক্ষক ১, পরীক্ষক ২</textarea>
         <div class="btn-container">
             <button class="btn btn-blue" onclick="addRow('reg')">+ নতুন সারি</button>
             <button class="btn btn-yellow" onclick="smartMerge('regBody')">স্মার্ট মার্জ</button>
-            <button class="btn btn-purple" onclick="exportJSON()">Backup</button>
-            <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">Restore</button>
             <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
         </div>
     </div>
@@ -141,6 +138,15 @@
         <table>
             <thead><tr><th width="10%">কক্ষ</th><th width="30%">পরীক্ষক</th><th width="12%">প্রদানকৃত</th><th width="12%">ব্যবহৃত</th><th width="12%">ফেরত</th><th width="24%">স্বাক্ষর</th></tr></thead>
             <tbody id="regBody"></tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="2">সর্বমোট:</td>
+                    <td id="totalG"></td>
+                    <td id="totalU"></td>
+                    <td id="totalF"></td>
+                    <td></td>
+                </tr>
+            </tfoot>
         </table>
     </div>
 </div>
@@ -161,16 +167,19 @@
         if(type === 'roster') {
             tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data?data.r:''}" oninput="saveData()"></td>
                             <td><select class="table-in staff-select">${getOpts('rStaff', data?data.s:'')}</select></td>
-                            <td><select class="table-in desig-select">${getOpts('rDesig', data?data.d:'')}</select></td><td></td>`;
+                            <td><select class="table-in desig-select">${getOpts('rDesig', data?data.d:'')}</select></td>
+                            <td><select class="table-in inst-select">${getOpts('rInstList', data?data.i:'')}</select></td>
+                            <td></td>`;
         } else {
             tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data?data.r:''}" oninput="saveData()"></td>
-                            <td><select class="table-in staff-select">${getOpts('regStaffList', data?data.s:'')}</select></td>
+                            <td><select class="table-in staff-select">${getOpts('rStaff', data?data.s:'')}</select></td>
                             <td><input type="number" class="table-in g-field" value="${data?data.g:''}" oninput="calc(this)"></td>
                             <td><input type="number" class="table-in u-field" value="${data?data.u:''}" oninput="calc(this)"></td>
                             <td><input type="text" class="table-in f-field" value="${data?data.f:''}" readonly></td><td></td>`;
         }
         body.appendChild(tr);
         tr.querySelectorAll('select').forEach(s => s.addEventListener('change', saveData));
+        if(type === 'reg') calculateTotals();
     }
 
     function getOpts(id, sel) {
@@ -185,21 +194,39 @@
     }
 
     function updateAllSelects() {
-        document.querySelectorAll('#rBody tr').forEach(tr => {
-            let s = tr.querySelector('.staff-select'), d = tr.querySelector('.desig-select');
-            let sv = s.value, dv = d.value;
-            s.innerHTML = getOpts('rStaff', sv); d.innerHTML = getOpts('rDesig', dv);
+        document.querySelectorAll('.staff-select').forEach(s => {
+            let sv = s.value; s.innerHTML = getOpts('rStaff', sv);
         });
-        document.querySelectorAll('#regBody tr').forEach(tr => {
-            let s = tr.querySelector('.staff-select'), sv = s.value;
-            s.innerHTML = getOpts('regStaffList', sv);
+        document.querySelectorAll('.desig-select').forEach(d => {
+            let dv = d.value; d.innerHTML = getOpts('rDesig', dv);
+        });
+        document.querySelectorAll('.inst-select').forEach(i => {
+            let iv = i.value; i.innerHTML = getOpts('rInstList', iv);
         });
     }
 
     function calc(el) {
-        const row = el.closest('tr');
-        row.querySelector('.f-field').value = (row.querySelector('.g-field').value || 0) - (row.querySelector('.u-field').value || 0);
+        if(el) {
+            const row = el.closest('tr');
+            row.querySelector('.f-field').value = (row.querySelector('.g-field').value || 0) - (row.querySelector('.u-field').value || 0);
+        }
+        calculateTotals();
         saveData();
+    }
+
+    function calculateTotals() {
+        let tg = 0, tu = 0, tf = 0;
+        let hasData = false;
+        document.querySelectorAll('#regBody tr').forEach(tr => {
+            let g = parseInt(tr.querySelector('.g-field').value);
+            let u = parseInt(tr.querySelector('.u-field').value);
+            let f = parseInt(tr.querySelector('.f-field').value);
+            if(!isNaN(g) || !isNaN(u)) hasData = true;
+            tg += g || 0; tu += u || 0; tf += f || 0;
+        });
+        document.getElementById('totalG').innerText = hasData ? tg : "";
+        document.getElementById('totalU').innerText = hasData ? tu : "";
+        document.getElementById('totalF').innerText = hasData ? tf : "";
     }
 
     function smartMerge(bodyId) {
@@ -217,24 +244,13 @@
 
     function saveData() {
         const data = {
-            seat: { 
-                inst: document.getElementById('sInst').value, 
-                exam: document.getElementById('sExam').value, 
-                sub: document.getElementById('sSub').value, 
-                date: document.getElementById('sDate').value, 
-                cls: document.getElementById('sClass').value, 
-                sec: document.getElementById('sSec').value, 
-                grp: document.getElementById('sGrp').value, 
-                start: document.getElementById('sStart').value, 
-                end: document.getElementById('sEnd').value 
-            },
-            roster: { sub: document.getElementById('rSub').value, date: document.getElementById('rDate').value, staff: document.getElementById('rStaff').value, desig: document.getElementById('rDesig').value, rows: [] },
-            reg: { sub: document.getElementById('regSub').value, date: document.getElementById('regDate').value, staff: document.getElementById('regStaffList').value, rows: [] }
+            seat: { inst: document.getElementById('sInst').value, exam: document.getElementById('sExam').value, sub: document.getElementById('sSub').value, date: document.getElementById('sDate').value, cls: document.getElementById('sClass').value, sec: document.getElementById('sSec').value, grp: document.getElementById('sGrp').value, start: document.getElementById('sStart').value, end: document.getElementById('sEnd').value },
+            roster: { sub: document.getElementById('rSub').value, date: document.getElementById('rDate').value, staff: document.getElementById('rStaff').value, desig: document.getElementById('rDesig').value, insts: document.getElementById('rInstList').value, rows: [] },
+            reg: { sub: document.getElementById('regSub').value, date: document.getElementById('regDate').value, rows: [] }
         };
-        document.querySelectorAll('#rBody tr').forEach(tr => data.roster.rows.push({ r: tr.querySelector('.room-field').value, s: tr.querySelector('.staff-select').value, d: tr.querySelector('.desig-select').value }));
+        document.querySelectorAll('#rBody tr').forEach(tr => data.roster.rows.push({ r: tr.querySelector('.room-field').value, s: tr.querySelector('.staff-select').value, d: tr.querySelector('.desig-select').value, i: tr.querySelector('.inst-select').value }));
         document.querySelectorAll('#regBody tr').forEach(tr => data.reg.rows.push({ r: tr.querySelector('.room-field').value, s: tr.querySelector('.staff-select').value, g: tr.querySelector('.g-field').value, u: tr.querySelector('.u-field').value, f: tr.querySelector('.f-field').value }));
-        
-        localStorage.setItem('exam_db_v6', JSON.stringify(data));
+        localStorage.setItem('exam_db_v10', JSON.stringify(data));
         updateView(data);
     }
 
@@ -250,45 +266,28 @@
         cont.innerHTML = '';
         const s = data.seat;
         for(let i=parseInt(s.start); i<=parseInt(s.end); i++) {
-            // সাবজেক্ট এবং ডেট এর লজিক
             let subLine = "";
-            if(s.sub.trim() !== "" && s.date.trim() !== "") {
-                subLine = `<div style="font-size:12pt;">${s.sub} | ${s.date}</div>`;
-            } else if(s.sub.trim() !== "" || s.date.trim() !== "") {
-                subLine = `<div style="font-size:12pt;">${s.sub}${s.date}</div>`;
-            }
-
-            cont.innerHTML += `<div class="seat-card"><div class="inner-border">
-                <div style="font-size:15pt; font-weight:bold; border-bottom:1px solid #000; margin:0 15px 5px;">${s.inst || 'প্রতিষ্ঠানের নাম'}</div>
-                <div style="font-weight:bold; font-size:14pt;">${s.exam || 'পরীক্ষার নাম'}</div>
-                ${subLine}
-                <div style="font-size:13pt; font-weight:bold;">Class: ${s.cls} | Sec: ${s.sec} | Grp: ${s.grp}</div>
-                <div style="font-size:26pt; font-weight:bold;">Roll-${i}</div>
-            </div></div>`;
+            if(s.sub.trim() !== "" && s.date.trim() !== "") subLine = `<div style="font-size:12pt;">${s.sub} | ${s.date}</div>`;
+            else if(s.sub.trim() !== "" || s.date.trim() !== "") subLine = `<div style="font-size:12pt;">${s.sub}${s.date}</div>`;
+            cont.innerHTML += `<div class="seat-card"><div class="inner-border"><div style="font-size:15pt; font-weight:bold; border-bottom:1px solid #000; margin:0 15px 5px;">${s.inst || 'প্রতিষ্ঠানের নাম'}</div><div style="font-weight:bold; font-size:14pt;">${s.exam || 'পরীক্ষার নাম'}</div>${subLine}<div style="font-size:13pt; font-weight:bold;">Class: ${s.cls} | Sec: ${s.sec} | Grp: ${s.grp}</div><div style="font-size:26pt; font-weight:bold;">Roll-${i}</div></div></div>`;
         }
     }
 
     function exportJSON() {
-        const content = localStorage.getItem('exam_db_v6');
-        if(!content) { alert("সেভ করার মতো কোনো ডাটা নেই!"); return; }
-        const blob = new Blob([content], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); 
-        a.download = 'Exam_Backup_' + new Date().toLocaleDateString() + '.json'; a.click();
+        const blob = new Blob([localStorage.getItem('exam_db_v10')], {type: 'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Backup_v10.json'; a.click();
     }
 
     function importJSON(e) {
         const reader = new FileReader();
-        reader.onload = (event) => { 
-            localStorage.setItem('exam_db_v6', event.target.result); 
-            location.reload(); 
-        };
+        reader.onload = (event) => { localStorage.setItem('exam_db_v10', event.target.result); location.reload(); };
         reader.readAsText(e.target.files[0]);
     }
 
     function clearData() { if(confirm("সব ডাটা মুছে যাবে! নিশ্চিত?")) { localStorage.clear(); location.reload(); } }
 
     window.onload = () => {
-        const stored = JSON.parse(localStorage.getItem('exam_db_v6'));
+        const stored = JSON.parse(localStorage.getItem('exam_db_v10'));
         if(stored) {
             document.getElementById('sInst').value = stored.seat.inst || ''; document.getElementById('sExam').value = stored.seat.exam || '';
             document.getElementById('sSub').value = stored.seat.sub || ''; document.getElementById('sDate').value = stored.seat.date || '';
@@ -297,11 +296,11 @@
             document.getElementById('sStart').value = stored.seat.start || '1'; document.getElementById('sEnd').value = stored.seat.end || '10';
             document.getElementById('rSub').value = stored.roster.sub || ''; document.getElementById('rDate').value = stored.roster.date || '';
             document.getElementById('rStaff').value = stored.roster.staff || ''; document.getElementById('rDesig').value = stored.roster.desig || '';
+            document.getElementById('rInstList').value = stored.roster.insts || '';
             document.getElementById('regSub').value = stored.reg.sub || ''; document.getElementById('regDate').value = stored.reg.date || '';
-            document.getElementById('regStaffList').value = stored.reg.staff || '';
             if(stored.roster.rows.length) stored.roster.rows.forEach(r => addRow('roster', r)); else addRow('roster');
             if(stored.reg.rows.length) stored.reg.rows.forEach(r => addRow('reg', r)); else addRow('reg');
-            updateView(stored);
+            calculateTotals(); updateView(stored);
         } else { addRow('roster'); addRow('reg'); }
     };
 </script>
