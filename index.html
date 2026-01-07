@@ -2,8 +2,19 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Exam Management Tool - Smart Hide Update</title>
+    <title>Exam Management Tool - Protected v13</title>
     <style>
+        /* লক স্ক্রিন স্টাইল */
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #2c3e50; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; z-index: 99999; color: white;
+        }
+        .lock-box { background: #fff; padding: 30px; border-radius: 10px; text-align: center; color: #333; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .lock-box input { padding: 10px; width: 200px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-size: 16px; }
+        .lock-box button { padding: 10px 25px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* মেইন স্টাইল */
         body { font-family: 'SolaimanLipi', Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
         .tab-bar { background: #2c3e50; padding: 12px; text-align: center; position: sticky; top: 0; z-index: 10000; }
         .tab-btn { padding: 12px 25px; font-size: 15px; font-weight: bold; cursor: pointer; border: none; background: #34495e; color: white; margin: 0 5px; border-radius: 5px; }
@@ -42,7 +53,7 @@
         .inner-border { margin: 4px; border: 1px solid #000; height: 92%; display: flex; flex-direction: column; justify-content: center; }
 
         @media print {
-            .tab-bar, .control-box, .no-print { display: none !important; }
+            .tab-bar, .control-box, .no-print, #lock-screen { display: none !important; }
             .section { display: none; }
             .section.active { display: block; padding: 0; }
             .container { border: none; padding: 0; }
@@ -52,108 +63,135 @@
 </head>
 <body>
 
-<div class="tab-bar no-print">
-    <button class="tab-btn active" onclick="openTab('seat-tab', this)">Seat Plan</button>
-    <button class="tab-btn" onclick="openTab('roster-tab', this)">Duty Roster</button>
-    <button class="tab-btn" onclick="openTab('reg-tab', this)">Answer Register</button>
+<div id="lock-screen">
+    <div class="lock-box">
+        <h3>Exam Tool - লগইন</h3>
+        <input type="password" id="passInput" placeholder="পাসওয়ার্ড লিখুন..." onkeypress="if(event.key==='Enter') verifyPass()">
+        <br>
+        <button onclick="verifyPass()">প্রবেশ করুন</button>
+        <p id="error-msg" style="color:red; display:none; margin-top:10px;">ভুল পাসওয়ার্ড!</p>
+    </div>
 </div>
 
-<div id="seat-tab" class="section active">
-    <div class="control-box no-print">
-        <span class="box-title">Seat Plan Settings:</span>
-        <div>
-            প্রতিষ্ঠানের নাম: <input type="text" id="sInst" class="input-field" style="width:300px;" oninput="saveData()">
-            পরীক্ষা: <input type="text" id="sExam" class="input-field" style="width:150px;" oninput="saveData()">
-            তারিখ: <input type="text" id="sDate" class="input-field" style="width:120px;" oninput="saveData()"><br>
-            বিষয়: <input type="text" id="sSub" class="input-field" style="width:200px;" oninput="saveData()">
-            Class: <input type="text" id="sClass" class="input-field" style="width:80px;" oninput="saveData()">
-            Section: <input type="text" id="sSec" class="input-field" style="width:80px;" oninput="saveData()">
-            Group: <input type="text" id="sGrp" class="input-field" style="width:100px;" oninput="saveData()"><br>
-            Roll: <input type="number" id="sStart" class="input-field" style="width:60px;" value="1" oninput="saveData()"> to <input type="number" id="sEnd" class="input-field" style="width:60px;" value="10" oninput="saveData()">
-        </div>
-        <div class="btn-container">
-            <button class="btn btn-blue" onclick="window.print()">Print Now</button>
-            <button class="btn btn-purple" onclick="exportJSON()">Master Backup (Full Data)</button>
-            <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">Restore (JSON File)</button>
-            <button class="btn btn-red" onclick="clearData()">Clear Everything</button>
-        </div>
+<div id="main-content" style="display:none;">
+    <div class="tab-bar no-print">
+        <button class="tab-btn active" onclick="openTab('seat-tab', this)">Seat Plan</button>
+        <button class="tab-btn" onclick="openTab('roster-tab', this)">Duty Roster</button>
+        <button class="tab-btn" onclick="openTab('reg-tab', this)">Answer Register</button>
     </div>
-    <div id="seat-container" class="seat-grid"></div>
-</div>
 
-<div id="roster-tab" class="section">
-    <div class="control-box no-print">
-        <span class="box-title">রোস্টার কনফিগারেশন</span>
-        বিষয়: <input type="text" id="rSub" class="input-field" style="width:200px;" oninput="saveData()">
-        তারিখ: <input type="text" id="rDate" class="input-field" style="width:150px;" oninput="saveData()">
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <div style="flex:1;">শিক্ষকদের তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateAllSelects(); saveData()">শিক্ষক ১, শিক্ষক ২</textarea></div>
-            <div style="flex:1;">পদবী তালিকা: <textarea id="rDesig" class="full-textarea" oninput="updateAllSelects(); saveData()">প্রভাষক, সহকারী শিক্ষক</textarea></div>
-            <div style="flex:1;">প্রতিষ্ঠানের তালিকা: <textarea id="rInstList" class="full-textarea" oninput="updateAllSelects(); saveData()">নিজ প্রতিষ্ঠান, অন্য প্রতিষ্ঠান ১</textarea></div>
-        </div>
-        <div class="btn-container">
-            <button class="btn btn-blue" onclick="addRow('roster')">+ নতুন সারি</button>
-            <button class="btn btn-yellow" onclick="smartMerge('rBody')">স্মার্ট মার্জ</button>
-            <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
-        </div>
-    </div>
-    <div class="container">
-        <div style="text-align:center;">
-            <h2 class="display-inst">প্রতিষ্ঠানের নাম</h2>
-            <h3 class="display-exam">পরীক্ষার নাম</h3>
-            <div class="header-info-row">
-                <span>বিষয়: <span id="rSubView">...</span></span>
-                <span>তারিখ: <span id="rDateView">...</span></span>
+    <div id="seat-tab" class="section active">
+        <div class="control-box no-print">
+            <span class="box-title">Seat Plan Settings:</span>
+            <div>
+                প্রতিষ্ঠানের নাম: <input type="text" id="sInst" class="input-field" style="width:300px;" oninput="saveData()">
+                পরীক্ষা: <input type="text" id="sExam" class="input-field" style="width:150px;" oninput="saveData()">
+                তারিখ: <input type="text" id="sDate" class="input-field" style="width:120px;" oninput="saveData()"><br>
+                বিষয়: <input type="text" id="sSub" class="input-field" style="width:200px;" oninput="saveData()">
+                Class: <input type="text" id="sClass" class="input-field" style="width:80px;" oninput="saveData()">
+                Section: <input type="text" id="sSec" class="input-field" style="width:80px;" oninput="saveData()">
+                Group: <input type="text" id="sGrp" class="input-field" style="width:100px;" oninput="saveData()"><br>
+                Roll: <input type="number" id="sStart" class="input-field" style="width:60px;" value="1" oninput="saveData()"> to <input type="number" id="sEnd" class="input-field" style="width:60px;" value="10" oninput="saveData()">
             </div>
-            <p style="font-weight:bold; text-decoration:underline;">শিক্ষক/পরিদর্শকদের ডিউটি রোস্টার</p>
-        </div>
-        <table>
-            <thead><tr><th width="8%">কক্ষ</th><th width="25%">শিক্ষক</th><th width="20%">পদবী</th><th width="22%">প্রতিষ্ঠানের নাম</th><th width="25%">স্বাক্ষর</th></tr></thead>
-            <tbody id="rBody"></tbody>
-        </table>
-    </div>
-</div>
-
-<div id="reg-tab" class="section">
-    <div class="control-box no-print">
-        <span class="box-title">রেজিস্টার কন্ট্রোল প্যানেল</span>
-        বিষয়: <input type="text" id="regSub" class="input-field" style="width:200px;" oninput="saveData()">
-        তারিখ: <input type="text" id="regDate" class="input-field" style="width:150px;" oninput="saveData()">
-        <div class="btn-container">
-            <button class="btn btn-blue" onclick="addRow('reg')">+ নতুন সারি</button>
-            <button class="btn btn-yellow" onclick="smartMerge('regBody')">স্মার্ট মার্জ</button>
-            <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
-        </div>
-    </div>
-    <div class="container">
-        <div style="text-align:center;">
-            <h2 class="display-inst">প্রতিষ্ঠানের নাম</h2>
-            <h3 class="display-exam">পরীক্ষার নাম</h3>
-            <div class="header-info-row">
-                <span>বিষয়: <span id="regSubView">...</span></span>
-                <span>তারিখ: <span id="regDateView">...</span></span>
+            <div class="btn-container">
+                <button class="btn btn-blue" onclick="window.print()">Print Now</button>
+                <button class="btn btn-purple" onclick="exportJSON()">Master Backup (Full Data)</button>
+                <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">Restore (JSON File)</button>
+                <button class="btn btn-red" onclick="clearData()">Clear Everything</button>
             </div>
-            <p style="font-weight:bold; text-decoration:underline;">উত্তরপত্র বিতরণ ও সংগ্রহ রেজিস্টার</p>
         </div>
-        <table>
-            <thead><tr><th width="10%">কক্ষ</th><th width="30%">পরীক্ষক</th><th width="12%">প্রদানকৃত</th><th width="12%">ব্যবহৃত</th><th width="12%">ফেরত</th><th width="24%">স্বাক্ষর</th></tr></thead>
-            <tbody id="regBody"></tbody>
-            <tfoot>
-                <tr class="total-row">
-                    <td colspan="2">সর্বমোট:</td>
-                    <td id="totalG"></td>
-                    <td id="totalU"></td>
-                    <td id="totalF"></td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
+        <div id="seat-container" class="seat-grid"></div>
+    </div>
+
+    <div id="roster-tab" class="section">
+        <div class="control-box no-print">
+            <span class="box-title">রোস্টার কনফিগারেশন</span>
+            বিষয়: <input type="text" id="rSub" class="input-field" style="width:200px;" oninput="saveData()">
+            তারিখ: <input type="text" id="rDate" class="input-field" style="width:150px;" oninput="saveData()">
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <div style="flex:1;">শিক্ষকদের তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateAllSelects(); saveData()">শিক্ষক ১, শিক্ষক ২</textarea></div>
+                <div style="flex:1;">পদবী তালিকা: <textarea id="rDesig" class="full-textarea" oninput="updateAllSelects(); saveData()">প্রভাষক, সহকারী শিক্ষক</textarea></div>
+                <div style="flex:1;">প্রতিষ্ঠানের তালিকা: <textarea id="rInstList" class="full-textarea" oninput="updateAllSelects(); saveData()">নিজ প্রতিষ্ঠান, অন্য প্রতিষ্ঠান ১</textarea></div>
+            </div>
+            <div class="btn-container">
+                <button class="btn btn-blue" onclick="addRow('roster')">+ নতুন সারি</button>
+                <button class="btn btn-yellow" onclick="smartMerge('rBody')">স্মার্ট মার্জ</button>
+                <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
+            </div>
+        </div>
+        <div class="container">
+            <div style="text-align:center;">
+                <h2 class="display-inst">প্রতিষ্ঠানের নাম</h2>
+                <h3 class="display-exam">পরীক্ষার নাম</h3>
+                <div class="header-info-row">
+                    <span>বিষয়: <span id="rSubView">...</span></span>
+                    <span>তারিখ: <span id="rDateView">...</span></span>
+                </div>
+                <p style="font-weight:bold; text-decoration:underline;">শিক্ষক/পরিদর্শকদের ডিউটি রোস্টার</p>
+            </div>
+            <table>
+                <thead><tr><th width="8%">কক্ষ</th><th width="25%">শিক্ষক</th><th width="20%">পদবী</th><th width="22%">প্রতিষ্ঠানের নাম</th><th width="25%">স্বাক্ষর</th></tr></thead>
+                <tbody id="rBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="reg-tab" class="section">
+        <div class="control-box no-print">
+            <span class="box-title">রেজিস্টার কন্ট্রোল প্যানেল</span>
+            বিষয়: <input type="text" id="regSub" class="input-field" style="width:200px;" oninput="saveData()">
+            তারিখ: <input type="text" id="regDate" class="input-field" style="width:150px;" oninput="saveData()">
+            <div class="btn-container">
+                <button class="btn btn-blue" onclick="addRow('reg')">+ নতুন সারি</button>
+                <button class="btn btn-yellow" onclick="smartMerge('regBody')">স্মার্ট মার্জ</button>
+                <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
+            </div>
+        </div>
+        <div class="container">
+            <div style="text-align:center;">
+                <h2 class="display-inst">প্রতিষ্ঠানের নাম</h2>
+                <h3 class="display-exam">পরীক্ষার নাম</h3>
+                <div class="header-info-row">
+                    <span>বিষয়: <span id="regSubView">...</span></span>
+                    <span>তারিখ: <span id="regDateView">...</span></span>
+                </div>
+                <p style="font-weight:bold; text-decoration:underline;">উত্তরপত্র বিতরণ ও সংগ্রহ রেজিস্টার</p>
+            </div>
+            <table>
+                <thead><tr><th width="10%">কক্ষ</th><th width="30%">পরীক্ষক</th><th width="12%">প্রদানকৃত</th><th width="12%">ব্যবহৃত</th><th width="12%">ফেরত</th><th width="24%">স্বাক্ষর</th></tr></thead>
+                <tbody id="regBody"></tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2">সর্বমোট:</td>
+                        <td id="totalG"></td>
+                        <td id="totalU"></td>
+                        <td id="totalF"></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
 </div>
 
 <input type="file" id="upFile" style="display:none" onchange="importJSON(event)">
 
 <script>
+    // --- PASSWORD SYSTEM ---
+    const correctPassword = "12345678"; // আপনার পাসওয়ার্ড এখানে পরিবর্তন করুন
+
+    function verifyPass() {
+        const input = document.getElementById('passInput').value;
+        if(input === correctPassword) {
+            document.getElementById('lock-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            sessionStorage.setItem('isExamToolUnlocked', 'true');
+        } else {
+            document.getElementById('error-msg').style.display = 'block';
+        }
+    }
+
+    // ট্যাব খোলার ফাংশন
     function openTab(id, btn) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -250,31 +288,20 @@
         document.getElementById('rDateView').innerText = data.roster.date || "...";
         document.getElementById('regSubView').innerText = data.reg.sub || "...";
         document.getElementById('regDateView').innerText = data.reg.date || "...";
-        
         const cont = document.getElementById('seat-container');
         cont.innerHTML = '';
         const s = data.seat;
         for(let i=parseInt(s.start); i<=parseInt(s.end); i++) {
-            // Subject & Date Logic
             let subDateLine = "";
             if(s.sub.trim() !== "" || s.date.trim() !== "") {
-                let parts = [];
-                if(s.sub.trim()) parts.push(s.sub);
-                if(s.date.trim()) parts.push(s.date);
+                let parts = []; if(s.sub.trim()) parts.push(s.sub); if(s.date.trim()) parts.push(s.date);
                 subDateLine = `<div style="font-size:12pt;">${parts.join(' | ')}</div>`;
             }
-
-            // Class, Sec, Grp Logic (Smart Hide)
             let classInfoParts = [];
             if(s.cls.trim()) classInfoParts.push(`Class: ${s.cls}`);
             if(s.sec.trim()) classInfoParts.push(`Sec: ${s.sec}`);
             if(s.grp.trim()) classInfoParts.push(`Grp: ${s.grp}`);
-            
-            let classLine = "";
-            if(classInfoParts.length > 0) {
-                classLine = `<div style="font-size:13pt; font-weight:bold;">${classInfoParts.join(' | ')}</div>`;
-            }
-
+            let classLine = classInfoParts.length > 0 ? `<div style="font-size:13pt; font-weight:bold;">${classInfoParts.join(' | ')}</div>` : "";
             cont.innerHTML += `<div class="seat-card"><div class="inner-border"><div style="font-size:15pt; font-weight:bold; border-bottom:1px solid #000; margin:0 15px 5px;">${s.inst || 'প্রতিষ্ঠানের নাম'}</div><div style="font-weight:bold; font-size:14pt;">${s.exam || 'পরীক্ষার নাম'}</div>${subDateLine}${classLine}<div style="font-size:26pt; font-weight:bold;">Roll-${i}</div></div></div>`;
         }
     }
@@ -293,6 +320,12 @@
     function clearData() { if(confirm("সব ডাটা মুছে যাবে! নিশ্চিত?")) { localStorage.clear(); location.reload(); } }
 
     window.onload = () => {
+        // সেশনে আনলকড আছে কি না চেক
+        if(sessionStorage.getItem('isExamToolUnlocked') === 'true') {
+            document.getElementById('lock-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+
         const stored = JSON.parse(localStorage.getItem('exam_db_final'));
         if(stored) {
             document.getElementById('sInst').value = stored.seat.inst || ''; document.getElementById('sExam').value = stored.seat.exam || '';
