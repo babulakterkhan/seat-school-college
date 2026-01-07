@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Exam Management Tool - Pro Update v10</title>
+    <title>Exam Management Tool - Smart Hide Update</title>
     <style>
         body { font-family: 'SolaimanLipi', Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
         .tab-bar { background: #2c3e50; padding: 12px; text-align: center; position: sticky; top: 0; z-index: 10000; }
@@ -73,7 +73,7 @@
         </div>
         <div class="btn-container">
             <button class="btn btn-blue" onclick="window.print()">Print Now</button>
-            <button class="btn btn-purple" onclick="exportJSON()">Backup (All Data)</button>
+            <button class="btn btn-purple" onclick="exportJSON()">Master Backup (Full Data)</button>
             <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">Restore (JSON File)</button>
             <button class="btn btn-red" onclick="clearData()">Clear Everything</button>
         </div>
@@ -194,15 +194,9 @@
     }
 
     function updateAllSelects() {
-        document.querySelectorAll('.staff-select').forEach(s => {
-            let sv = s.value; s.innerHTML = getOpts('rStaff', sv);
-        });
-        document.querySelectorAll('.desig-select').forEach(d => {
-            let dv = d.value; d.innerHTML = getOpts('rDesig', dv);
-        });
-        document.querySelectorAll('.inst-select').forEach(i => {
-            let iv = i.value; i.innerHTML = getOpts('rInstList', iv);
-        });
+        document.querySelectorAll('.staff-select').forEach(s => { let sv = s.value; s.innerHTML = getOpts('rStaff', sv); });
+        document.querySelectorAll('.desig-select').forEach(d => { let dv = d.value; d.innerHTML = getOpts('rDesig', dv); });
+        document.querySelectorAll('.inst-select').forEach(i => { let iv = i.value; i.innerHTML = getOpts('rInstList', iv); });
     }
 
     function calc(el) {
@@ -215,12 +209,9 @@
     }
 
     function calculateTotals() {
-        let tg = 0, tu = 0, tf = 0;
-        let hasData = false;
+        let tg = 0, tu = 0, tf = 0, hasData = false;
         document.querySelectorAll('#regBody tr').forEach(tr => {
-            let g = parseInt(tr.querySelector('.g-field').value);
-            let u = parseInt(tr.querySelector('.u-field').value);
-            let f = parseInt(tr.querySelector('.f-field').value);
+            let g = parseInt(tr.querySelector('.g-field').value), u = parseInt(tr.querySelector('.u-field').value), f = parseInt(tr.querySelector('.f-field').value);
             if(!isNaN(g) || !isNaN(u)) hasData = true;
             tg += g || 0; tu += u || 0; tf += f || 0;
         });
@@ -235,9 +226,7 @@
         for(let i=0; i<rows.length; i++) {
             let val = rows[i].querySelector('.room-field').value; if(!val) continue;
             let span = 1;
-            for(let j=i+1; j<rows.length; j++) {
-                if(rows[j].querySelector('.room-field').value === val) { span++; rows[j].cells[0].style.display = 'none'; } else break;
-            }
+            for(let j=i+1; j<rows.length; j++) { if(rows[j].querySelector('.room-field').value === val) { span++; rows[j].cells[0].style.display = 'none'; } else break; }
             if(span > 1) { rows[i].cells[0].rowSpan = span; i += (span-1); }
         }
     }
@@ -250,7 +239,7 @@
         };
         document.querySelectorAll('#rBody tr').forEach(tr => data.roster.rows.push({ r: tr.querySelector('.room-field').value, s: tr.querySelector('.staff-select').value, d: tr.querySelector('.desig-select').value, i: tr.querySelector('.inst-select').value }));
         document.querySelectorAll('#regBody tr').forEach(tr => data.reg.rows.push({ r: tr.querySelector('.room-field').value, s: tr.querySelector('.staff-select').value, g: tr.querySelector('.g-field').value, u: tr.querySelector('.u-field').value, f: tr.querySelector('.f-field').value }));
-        localStorage.setItem('exam_db_v10', JSON.stringify(data));
+        localStorage.setItem('exam_db_final', JSON.stringify(data));
         updateView(data);
     }
 
@@ -266,28 +255,45 @@
         cont.innerHTML = '';
         const s = data.seat;
         for(let i=parseInt(s.start); i<=parseInt(s.end); i++) {
-            let subLine = "";
-            if(s.sub.trim() !== "" && s.date.trim() !== "") subLine = `<div style="font-size:12pt;">${s.sub} | ${s.date}</div>`;
-            else if(s.sub.trim() !== "" || s.date.trim() !== "") subLine = `<div style="font-size:12pt;">${s.sub}${s.date}</div>`;
-            cont.innerHTML += `<div class="seat-card"><div class="inner-border"><div style="font-size:15pt; font-weight:bold; border-bottom:1px solid #000; margin:0 15px 5px;">${s.inst || 'প্রতিষ্ঠানের নাম'}</div><div style="font-weight:bold; font-size:14pt;">${s.exam || 'পরীক্ষার নাম'}</div>${subLine}<div style="font-size:13pt; font-weight:bold;">Class: ${s.cls} | Sec: ${s.sec} | Grp: ${s.grp}</div><div style="font-size:26pt; font-weight:bold;">Roll-${i}</div></div></div>`;
+            // Subject & Date Logic
+            let subDateLine = "";
+            if(s.sub.trim() !== "" || s.date.trim() !== "") {
+                let parts = [];
+                if(s.sub.trim()) parts.push(s.sub);
+                if(s.date.trim()) parts.push(s.date);
+                subDateLine = `<div style="font-size:12pt;">${parts.join(' | ')}</div>`;
+            }
+
+            // Class, Sec, Grp Logic (Smart Hide)
+            let classInfoParts = [];
+            if(s.cls.trim()) classInfoParts.push(`Class: ${s.cls}`);
+            if(s.sec.trim()) classInfoParts.push(`Sec: ${s.sec}`);
+            if(s.grp.trim()) classInfoParts.push(`Grp: ${s.grp}`);
+            
+            let classLine = "";
+            if(classInfoParts.length > 0) {
+                classLine = `<div style="font-size:13pt; font-weight:bold;">${classInfoParts.join(' | ')}</div>`;
+            }
+
+            cont.innerHTML += `<div class="seat-card"><div class="inner-border"><div style="font-size:15pt; font-weight:bold; border-bottom:1px solid #000; margin:0 15px 5px;">${s.inst || 'প্রতিষ্ঠানের নাম'}</div><div style="font-weight:bold; font-size:14pt;">${s.exam || 'পরীক্ষার নাম'}</div>${subDateLine}${classLine}<div style="font-size:26pt; font-weight:bold;">Roll-${i}</div></div></div>`;
         }
     }
 
     function exportJSON() {
-        const blob = new Blob([localStorage.getItem('exam_db_v10')], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Backup_v10.json'; a.click();
+        const blob = new Blob([localStorage.getItem('exam_db_final')], {type: 'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Exam_Master_Backup.json'; a.click();
     }
 
     function importJSON(e) {
         const reader = new FileReader();
-        reader.onload = (event) => { localStorage.setItem('exam_db_v10', event.target.result); location.reload(); };
+        reader.onload = (event) => { localStorage.setItem('exam_db_final', event.target.result); location.reload(); };
         reader.readAsText(e.target.files[0]);
     }
 
     function clearData() { if(confirm("সব ডাটা মুছে যাবে! নিশ্চিত?")) { localStorage.clear(); location.reload(); } }
 
     window.onload = () => {
-        const stored = JSON.parse(localStorage.getItem('exam_db_v10'));
+        const stored = JSON.parse(localStorage.getItem('exam_db_final'));
         if(stored) {
             document.getElementById('sInst').value = stored.seat.inst || ''; document.getElementById('sExam').value = stored.seat.exam || '';
             document.getElementById('sSub').value = stored.seat.sub || ''; document.getElementById('sDate').value = stored.seat.date || '';
