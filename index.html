@@ -2,252 +2,308 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Exam Seat Plan - Backup System</title>
+    <title>Exam Management Tool - Smart Hide Subject</title>
     <style>
-        @page {
-            size: A4;
-            margin: 10mm;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7f6;
-        }
-        .no-print {
-            text-align: center;
-            padding: 15px;
-            background: #ffffff;
-            border-bottom: 2px solid #ddd;
-            line-height: 2.5;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .btn {
-            padding: 10px 20px;
-            font-size: 15px;
-            font-weight: bold;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        .input-field {
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin: 0 5px;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            width: 190mm;
-            margin: 15px auto;
-        }
-        .seat-card {
-            height: 52mm;
-            border: 2px solid #000;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            text-align: center;
-            background: #fff;
-        }
-        .inner-border {
-            margin: 4px;
-            border: 1px solid #000;
-            height: 92%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .institute-name {
-            font-size: 16pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-            border-bottom: 1px solid #000;
-            padding-bottom: 3px;
-            margin-left: 15px;
-            margin-right: 15px;
-        }
-        .exam-name {
-            font-size: 13pt;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-        .details-text {
-            font-size: 14pt;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        .roll {
-            font-size: 28pt;
-            font-weight: bold;
-        }
+        body { font-family: 'SolaimanLipi', Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+        .tab-bar { background: #2c3e50; padding: 12px; text-align: center; position: sticky; top: 0; z-index: 10000; }
+        .tab-btn { padding: 12px 25px; font-size: 15px; font-weight: bold; cursor: pointer; border: none; background: #34495e; color: white; margin: 0 5px; border-radius: 5px; }
+        .tab-btn.active { background: #28a745; }
+        
+        .section { display: none; padding: 20px; }
+        .section.active { display: block; }
+
+        .control-box { background: #fff; padding: 20px; border-radius: 8px; max-width: 1000px; margin: 0 auto 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-top: 4px solid #28a745; }
+        .box-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; display: block; color: #2c3e50; }
+        
+        .input-field { padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin: 5px; font-size: 14px; }
+        .full-textarea { width: 95%; height: 60px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; resize: none; margin-bottom: 15px; font-family: inherit; }
+        
+        .btn-container { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        
+        .btn-blue { background: #007bff; }
+        .btn-purple { background: #6f42c1; }
+        .btn-orange { background: #fd7e14; }
+        .btn-red { background: #dc3545; }
+        .btn-green { background: #28a745; }
+        .btn-yellow { background: #ffa500; }
+
+        .container { width: 100%; max-width: 1050px; margin: 0 auto; background: white; padding: 30px; border: 1px solid #000; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: center; }
+        
+        .table-in { width: 98%; border: none; text-align: center; outline: none; background: transparent; font-size: 15px; font-family: inherit; appearance: none; }
+
+        .header-info-row { display: flex; justify-content: space-between; margin: 10px 0; font-weight: bold; font-size: 16px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+
+        .seat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 190mm; margin: 15px auto; }
+        .seat-card { height: 52mm; border: 2px solid #000; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+        .inner-border { margin: 4px; border: 1px solid #000; height: 92%; display: flex; flex-direction: column; justify-content: center; }
+
         @media print {
-            .no-print { display: none; }
-            body { background-color: #fff; }
-            .container { margin: 0 auto; }
-            .seat-card { page-break-inside: avoid; }
+            .tab-bar, .control-box, .no-print { display: none !important; }
+            .section { display: none; }
+            .section.active { display: block; padding: 0; }
+            .container { border: none; padding: 0; }
+            @page { margin: 10mm; size: A4; }
         }
     </style>
 </head>
 <body>
-<div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-  <h3>অনুগ্রহ করে পাসওয়ার্ড দিন</h3>
-  <input type="password" id="pass-input" style="padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc;">
-  <button onclick="checkPass()" style="padding:10px 20px; cursor:pointer; background:#28a745; color:white; border:none; border-radius:5px;">Login</button>
-  <p id="error-msg" style="color:red; display:none;">ভুল পাসওয়ার্ড!</p>
+
+<div class="tab-bar no-print">
+    <button class="tab-btn active" onclick="openTab('seat-tab', this)">Seat Plan</button>
+    <button class="tab-btn" onclick="openTab('roster-tab', this)">Duty Roster</button>
+    <button class="tab-btn" onclick="openTab('reg-tab', this)">Answer Register</button>
 </div>
 
-<div class="no-print">
-    <strong>Seat Plan Settings:</strong><br>
-    Institute: <input type="text" id="instName" placeholder="ইন্সটিটিউটের নাম" style="width: 300px;" class="input-field" oninput="saveAndGenerate()">
-    Exam: <input type="text" id="examType" value="ANNUAL EXAM" style="width: 150px;" class="input-field" oninput="saveAndGenerate()"> 
-    Year: <input type="text" id="examYear" value="2026" style="width: 60px;" class="input-field" oninput="saveAndGenerate()"><br>
-    
-    Class: <input type="text" id="className" value="Class-10" style="width: 100px;" class="input-field" oninput="saveAndGenerate()"> 
-    Section: 
-    <select id="sectionName" class="input-field" onchange="saveAndGenerate()">
-        <option value="A">Section: A</option>
-        <option value="B">Section: B</option>
-        <option value="C">Section: C</option>
-        <option value="N/A">None</option>
-    </select>
-    
-    Group: 
-    <select id="groupName" class="input-field" onchange="saveAndGenerate()">
-        <option value="N/A">None</option>
-        <option value="Science">Science</option>
-        <option value="Humanities">Humanities</option>
-        <option value="Business Studies">Business Studies</option>
-    </select>
-    <br>
-    Roll: <input type="number" id="start" value="1" style="width: 50px;" class="input-field" oninput="saveAndGenerate()"> to 
-    <input type="number" id="end" value="10" style="width: 50px;" class="input-field" oninput="saveAndGenerate()">
-    <br>
-    <button class="btn" style="background-color: #007bff;" onclick="window.print()">Print Now</button>
-    <button class="btn" style="background-color: #6f42c1;" onclick="downloadJSON()">Backup (JSON)</button>
-    <label for="uploadJSON" class="btn" style="background-color: #fd7e14; display: inline-block;">Restore (Upload)</label>
-    <input type="file" id="uploadJSON" style="display:none;" accept=".json" onchange="uploadJSON(event)">
-    <button class="btn" style="background-color: #dc3545;" onclick="clearData()">Clear All Data</button>
+<div id="seat-tab" class="section active">
+    <div class="control-box no-print">
+        <span class="box-title">Seat Plan Settings:</span>
+        <div>
+            প্রতিষ্ঠানের নাম: <input type="text" id="sInst" class="input-field" style="width:300px;" oninput="saveData()">
+            পরীক্ষা: <input type="text" id="sExam" class="input-field" style="width:150px;" oninput="saveData()">
+            তারিখ: <input type="text" id="sDate" class="input-field" style="width:120px;" oninput="saveData()"><br>
+            বিষয়: <input type="text" id="sSub" class="input-field" style="width:200px;" oninput="saveData()">
+            Class: <input type="text" id="sClass" class="input-field" style="width:80px;" oninput="saveData()">
+            Section: <input type="text" id="sSec" class="input-field" style="width:80px;" oninput="saveData()">
+            Group: <input type="text" id="sGrp" class="input-field" style="width:100px;" oninput="saveData()"><br>
+            Roll: <input type="number" id="sStart" class="input-field" style="width:60px;" value="1" oninput="saveData()"> to <input type="number" id="sEnd" class="input-field" style="width:60px;" value="10" oninput="saveData()">
+        </div>
+        <div class="btn-container">
+            <button class="btn btn-blue" onclick="window.print()">Print Now</button>
+            <button class="btn btn-purple" onclick="exportJSON()">Backup (All Data)</button>
+            <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">Restore (JSON File)</button>
+            <button class="btn btn-red" onclick="clearData()">Clear Everything</button>
+        </div>
+    </div>
+    <div id="seat-container" class="seat-grid"></div>
 </div>
 
-<div class="container" id="card-container"></div>
+<div id="roster-tab" class="section">
+    <div class="control-box no-print">
+        <span class="box-title">রোস্টার কনফিগারেশন</span>
+        বিষয়: <input type="text" id="rSub" class="input-field" style="width:200px;" oninput="saveData()">
+        তারিখ: <input type="text" id="rDate" class="input-field" style="width:150px;" oninput="saveData()">
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <div style="flex:1;">শিক্ষকদের তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateAllSelects(); saveData()">শিক্ষক ১, শিক্ষক ২</textarea></div>
+            <div style="flex:1;">পদবী তালিকা: <textarea id="rDesig" class="full-textarea" oninput="updateAllSelects(); saveData()">প্রভাষক, সহকারী শিক্ষক</textarea></div>
+        </div>
+        <div class="btn-container">
+            <button class="btn btn-blue" onclick="addRow('roster')">+ নতুন সারি</button>
+            <button class="btn btn-yellow" onclick="smartMerge('rBody')">স্মার্ট মার্জ</button>
+            <button class="btn btn-purple" onclick="exportJSON()">Backup</button>
+            <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">Restore</button>
+            <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
+        </div>
+    </div>
+    <div class="container">
+        <div style="text-align:center;">
+            <h2 class="display-inst">প্রতিষ্ঠানের নাম</h2>
+            <h3 class="display-exam">পরীক্ষার নাম</h3>
+            <div class="header-info-row">
+                <span>বিষয়: <span id="rSubView">...</span></span>
+                <span>তারিখ: <span id="rDateView">...</span></span>
+            </div>
+            <p style="font-weight:bold; text-decoration:underline;">শিক্ষক/পরিদর্শকদের ডিউটি রোস্টার</p>
+        </div>
+        <table>
+            <thead><tr><th width="10%">কক্ষ</th><th width="35%">শিক্ষক</th><th width="25%">পদবী</th><th width="30%">স্বাক্ষর</th></tr></thead>
+            <tbody id="rBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="reg-tab" class="section">
+    <div class="control-box no-print">
+        <span class="box-title">রেজিস্টার কন্ট্রোল প্যানেল</span>
+        বিষয়: <input type="text" id="regSub" class="input-field" style="width:200px;" oninput="saveData()">
+        তারিখ: <input type="text" id="regDate" class="input-field" style="width:150px;" oninput="saveData()">
+        <textarea id="regStaffList" class="full-textarea" oninput="updateAllSelects(); saveData()">পরীক্ষক ১, পরীক্ষক ২</textarea>
+        <div class="btn-container">
+            <button class="btn btn-blue" onclick="addRow('reg')">+ নতুন সারি</button>
+            <button class="btn btn-yellow" onclick="smartMerge('regBody')">স্মার্ট মার্জ</button>
+            <button class="btn btn-purple" onclick="exportJSON()">Backup</button>
+            <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">Restore</button>
+            <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
+        </div>
+    </div>
+    <div class="container">
+        <div style="text-align:center;">
+            <h2 class="display-inst">প্রতিষ্ঠানের নাম</h2>
+            <h3 class="display-exam">পরীক্ষার নাম</h3>
+            <div class="header-info-row">
+                <span>বিষয়: <span id="regSubView">...</span></span>
+                <span>তারিখ: <span id="regDateView">...</span></span>
+            </div>
+            <p style="font-weight:bold; text-decoration:underline;">উত্তরপত্র বিতরণ ও সংগ্রহ রেজিস্টার</p>
+        </div>
+        <table>
+            <thead><tr><th width="10%">কক্ষ</th><th width="30%">পরীক্ষক</th><th width="12%">প্রদানকৃত</th><th width="12%">ব্যবহৃত</th><th width="12%">ফেরত</th><th width="24%">স্বাক্ষর</th></tr></thead>
+            <tbody id="regBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<input type="file" id="upFile" style="display:none" onchange="importJSON(event)">
 
 <script>
-    function checkPass() {
-      const input = document.getElementById('pass-input').value;
-      const correctPass = "12345678"; 
-      if (input === correctPass) {
-        document.getElementById('login-screen').style.display = 'none';
-      } else {
-        document.getElementById('error-msg').style.display = 'block';
-      }
+    function openTab(id, btn) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
     }
 
-    function saveAndGenerate() {
+    function addRow(type, data = null) {
+        const body = type === 'roster' ? document.getElementById('rBody') : document.getElementById('regBody');
+        const tr = document.createElement('tr');
+        if(type === 'roster') {
+            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data?data.r:''}" oninput="saveData()"></td>
+                            <td><select class="table-in staff-select">${getOpts('rStaff', data?data.s:'')}</select></td>
+                            <td><select class="table-in desig-select">${getOpts('rDesig', data?data.d:'')}</select></td><td></td>`;
+        } else {
+            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data?data.r:''}" oninput="saveData()"></td>
+                            <td><select class="table-in staff-select">${getOpts('regStaffList', data?data.s:'')}</select></td>
+                            <td><input type="number" class="table-in g-field" value="${data?data.g:''}" oninput="calc(this)"></td>
+                            <td><input type="number" class="table-in u-field" value="${data?data.u:''}" oninput="calc(this)"></td>
+                            <td><input type="text" class="table-in f-field" value="${data?data.f:''}" readonly></td><td></td>`;
+        }
+        body.appendChild(tr);
+        tr.querySelectorAll('select').forEach(s => s.addEventListener('change', saveData));
+    }
+
+    function getOpts(id, sel) {
+        let o = '<option value=""></option>';
+        let area = document.getElementById(id);
+        if(area) {
+            area.value.split(',').forEach(t => {
+                let v = t.trim(); if(v) o += `<option value="${v}" ${v===sel?'selected':''}>${v}</option>`;
+            });
+        }
+        return o;
+    }
+
+    function updateAllSelects() {
+        document.querySelectorAll('#rBody tr').forEach(tr => {
+            let s = tr.querySelector('.staff-select'), d = tr.querySelector('.desig-select');
+            let sv = s.value, dv = d.value;
+            s.innerHTML = getOpts('rStaff', sv); d.innerHTML = getOpts('rDesig', dv);
+        });
+        document.querySelectorAll('#regBody tr').forEach(tr => {
+            let s = tr.querySelector('.staff-select'), sv = s.value;
+            s.innerHTML = getOpts('regStaffList', sv);
+        });
+    }
+
+    function calc(el) {
+        const row = el.closest('tr');
+        row.querySelector('.f-field').value = (row.querySelector('.g-field').value || 0) - (row.querySelector('.u-field').value || 0);
+        saveData();
+    }
+
+    function smartMerge(bodyId) {
+        const rows = document.getElementById(bodyId).rows;
+        for(let r of rows) { r.cells[0].style.display = ''; r.cells[0].rowSpan = 1; }
+        for(let i=0; i<rows.length; i++) {
+            let val = rows[i].querySelector('.room-field').value; if(!val) continue;
+            let span = 1;
+            for(let j=i+1; j<rows.length; j++) {
+                if(rows[j].querySelector('.room-field').value === val) { span++; rows[j].cells[0].style.display = 'none'; } else break;
+            }
+            if(span > 1) { rows[i].cells[0].rowSpan = span; i += (span-1); }
+        }
+    }
+
+    function saveData() {
         const data = {
-            inst: document.getElementById('instName').value,
-            exam: document.getElementById('examType').value,
-            year: document.getElementById('examYear').value,
-            cls: document.getElementById('className').value,
-            sec: document.getElementById('sectionName').value,
-            grp: document.getElementById('groupName').value,
-            start: document.getElementById('start').value,
-            end: document.getElementById('end').value
+            seat: { 
+                inst: document.getElementById('sInst').value, 
+                exam: document.getElementById('sExam').value, 
+                sub: document.getElementById('sSub').value, 
+                date: document.getElementById('sDate').value, 
+                cls: document.getElementById('sClass').value, 
+                sec: document.getElementById('sSec').value, 
+                grp: document.getElementById('sGrp').value, 
+                start: document.getElementById('sStart').value, 
+                end: document.getElementById('sEnd').value 
+            },
+            roster: { sub: document.getElementById('rSub').value, date: document.getElementById('rDate').value, staff: document.getElementById('rStaff').value, desig: document.getElementById('rDesig').value, rows: [] },
+            reg: { sub: document.getElementById('regSub').value, date: document.getElementById('regDate').value, staff: document.getElementById('regStaffList').value, rows: [] }
         };
-        localStorage.setItem('seatPlanData', JSON.stringify(data));
-        generateCards();
-    }
-
-    function generateCards() {
-        const instName = document.getElementById('instName').value || "YOUR INSTITUTE NAME";
-        const examType = document.getElementById('examType').value;
-        const exYear = document.getElementById('examYear').value;
-        const className = document.getElementById('className').value;
-        const sectionName = document.getElementById('sectionName').value;
-        const groupName = document.getElementById('groupName').value;
-        const start = parseInt(document.getElementById('start').value) || 1;
-        const end = parseInt(document.getElementById('end').value) || 1;
+        document.querySelectorAll('#rBody tr').forEach(tr => data.roster.rows.push({ r: tr.querySelector('.room-field').value, s: tr.querySelector('.staff-select').value, d: tr.querySelector('.desig-select').value }));
+        document.querySelectorAll('#regBody tr').forEach(tr => data.reg.rows.push({ r: tr.querySelector('.room-field').value, s: tr.querySelector('.staff-select').value, g: tr.querySelector('.g-field').value, u: tr.querySelector('.u-field').value, f: tr.querySelector('.f-field').value }));
         
-        const container = document.getElementById('card-container');
-        container.innerHTML = '';
+        localStorage.setItem('exam_db_v6', JSON.stringify(data));
+        updateView(data);
+    }
 
-        for (let i = start; i <= end; i++) {
-            let sectionDisplay = sectionName === "N/A" ? "" : ` | Sec: ${sectionName}`;
-            let groupDisplay = groupName === "N/A" ? "" : ` (${groupName})`;
-            
-            container.innerHTML += `
-                <div class="seat-card">
-                    <div class="inner-border">
-                        <div class="institute-name">${instName}</div>
-                        <div class="exam-name">${examType}-${exYear}</div>
-                        <div class="details-text">Class: ${className}${groupDisplay}${sectionDisplay}</div>
-                        <div class="roll">Roll-${i}</div>
-                    </div>
-                </div>
-            `;
+    function updateView(data) {
+        document.querySelectorAll('.display-inst').forEach(el => el.innerText = data.seat.inst || "প্রতিষ্ঠানের নাম");
+        document.querySelectorAll('.display-exam').forEach(el => el.innerText = data.seat.exam || "পরীক্ষার নাম");
+        document.getElementById('rSubView').innerText = data.roster.sub || "...";
+        document.getElementById('rDateView').innerText = data.roster.date || "...";
+        document.getElementById('regSubView').innerText = data.reg.sub || "...";
+        document.getElementById('regDateView').innerText = data.reg.date || "...";
+        
+        const cont = document.getElementById('seat-container');
+        cont.innerHTML = '';
+        const s = data.seat;
+        for(let i=parseInt(s.start); i<=parseInt(s.end); i++) {
+            // সাবজেক্ট এবং ডেট এর লজিক
+            let subLine = "";
+            if(s.sub.trim() !== "" && s.date.trim() !== "") {
+                subLine = `<div style="font-size:12pt;">${s.sub} | ${s.date}</div>`;
+            } else if(s.sub.trim() !== "" || s.date.trim() !== "") {
+                subLine = `<div style="font-size:12pt;">${s.sub}${s.date}</div>`;
+            }
+
+            cont.innerHTML += `<div class="seat-card"><div class="inner-border">
+                <div style="font-size:15pt; font-weight:bold; border-bottom:1px solid #000; margin:0 15px 5px;">${s.inst || 'প্রতিষ্ঠানের নাম'}</div>
+                <div style="font-weight:bold; font-size:14pt;">${s.exam || 'পরীক্ষার নাম'}</div>
+                ${subLine}
+                <div style="font-size:13pt; font-weight:bold;">Class: ${s.cls} | Sec: ${s.sec} | Grp: ${s.grp}</div>
+                <div style="font-size:26pt; font-weight:bold;">Roll-${i}</div>
+            </div></div>`;
         }
     }
 
-    function loadData() {
-        const savedData = localStorage.getItem('seatPlanData');
-        if (savedData) {
-            const data = JSON.parse(savedData);
-            document.getElementById('instName').value = data.inst || "";
-            document.getElementById('examType').value = data.exam || "";
-            document.getElementById('examYear').value = data.year || "";
-            document.getElementById('className').value = data.cls || "";
-            document.getElementById('sectionName').value = data.sec || "N/A";
-            document.getElementById('groupName').value = data.grp || "N/A";
-            document.getElementById('start').value = data.start || 1;
-            document.getElementById('end').value = data.end || 10;
-        }
-        generateCards();
+    function exportJSON() {
+        const content = localStorage.getItem('exam_db_v6');
+        if(!content) { alert("সেভ করার মতো কোনো ডাটা নেই!"); return; }
+        const blob = new Blob([content], {type: 'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); 
+        a.download = 'Exam_Backup_' + new Date().toLocaleDateString() + '.json'; a.click();
     }
 
-    // ব্যাকআপ ডাউনলোড ফাংশন
-    function downloadJSON() {
-        const savedData = localStorage.getItem('seatPlanData');
-        if (!savedData) { alert("কোনো ডাটা নেই!"); return; }
-        const blob = new Blob([savedData], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Seat_Plan_Backup_${new Date().toLocaleDateString()}.json`;
-        a.click();
-    }
-
-    // ব্যাকআপ আপলোড ফাংশন
-    function uploadJSON(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+    function importJSON(e) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if(confirm("আগের ডাটা মুছে ফাইল থেকে রিস্টোর করবেন?")) {
-                    localStorage.setItem('seatPlanData', JSON.stringify(data));
-                    location.reload();
-                }
-            } catch (err) { alert("সঠিক JSON ফাইল নয়!"); }
+        reader.onload = (event) => { 
+            localStorage.setItem('exam_db_v6', event.target.result); 
+            location.reload(); 
         };
-        reader.readAsText(file);
+        reader.readAsText(e.target.files[0]);
     }
 
-    function clearData() {
-        if(confirm("সব ডাটা মুছে ফেলতে চান?")) {
-            localStorage.removeItem('seatPlanData');
-            location.reload();
-        }
-    }
+    function clearData() { if(confirm("সব ডাটা মুছে যাবে! নিশ্চিত?")) { localStorage.clear(); location.reload(); } }
 
-    window.onload = loadData;
+    window.onload = () => {
+        const stored = JSON.parse(localStorage.getItem('exam_db_v6'));
+        if(stored) {
+            document.getElementById('sInst').value = stored.seat.inst || ''; document.getElementById('sExam').value = stored.seat.exam || '';
+            document.getElementById('sSub').value = stored.seat.sub || ''; document.getElementById('sDate').value = stored.seat.date || '';
+            document.getElementById('sClass').value = stored.seat.cls || ''; document.getElementById('sSec').value = stored.seat.sec || '';
+            document.getElementById('sGrp').value = stored.seat.grp || '';
+            document.getElementById('sStart').value = stored.seat.start || '1'; document.getElementById('sEnd').value = stored.seat.end || '10';
+            document.getElementById('rSub').value = stored.roster.sub || ''; document.getElementById('rDate').value = stored.roster.date || '';
+            document.getElementById('rStaff').value = stored.roster.staff || ''; document.getElementById('rDesig').value = stored.roster.desig || '';
+            document.getElementById('regSub').value = stored.reg.sub || ''; document.getElementById('regDate').value = stored.reg.date || '';
+            document.getElementById('regStaffList').value = stored.reg.staff || '';
+            if(stored.roster.rows.length) stored.roster.rows.forEach(r => addRow('roster', r)); else addRow('roster');
+            if(stored.reg.rows.length) stored.reg.rows.forEach(r => addRow('reg', r)); else addRow('reg');
+            updateView(stored);
+        } else { addRow('roster'); addRow('reg'); }
+    };
 </script>
 </body>
 </html>
