@@ -36,10 +36,8 @@
         .btn-red { background: #dc3545; }
         .btn-green { background: #28a745; }
         .btn-yellow { background: #ffa500; }
-        .btn-dark { background: #1a252f; }
 
         .del-btn { background: #ff4d4d; color: white; border: none; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 5px; }
-        .del-btn:hover { background: #cc0000; }
 
         .container { width: 100%; max-width: 1050px; margin: 0 auto; background: white; padding: 30px; border: 1px solid #000; box-sizing: border-box; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
@@ -59,6 +57,22 @@
             .section { display: none; }
             .section.active { display: block; padding: 0; }
             .container { border: none; padding: 0; }
+
+            /* ড্রপডাউন অ্যারো লুকানোর কোড */
+            .table-in {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                border: none !important;
+                background: transparent !important;
+                padding: 0;
+                margin: 0;
+            }
+            select.table-in {
+                text-align: center;
+                text-align-last: center; /* ড্রপডাউন টেক্সট মাঝখানে রাখার জন্য */
+            }
+
             @page { margin: 10mm; size: A4; }
         }
     </style>
@@ -113,7 +127,7 @@
             বিষয়: <input type="text" id="rSub" class="input-field" style="width:200px;" oninput="saveData()">
             তারিখ: <input type="text" id="rDate" class="input-field" style="width:150px;" oninput="saveData()">
             <div style="display:flex; gap:10px; margin-top:10px;">
-                <div style="flex:1;">शिक्षক তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateAllSelects(); saveData()">শিক্ষক ১, শিক্ষক ২</textarea></div>
+                <div style="flex:1;">শিক্ষক তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateAllSelects(); saveData()">শিক্ষক ১, শিক্ষক ২</textarea></div>
                 <div style="flex:1;">পদবী তালিকা: <textarea id="rDesig" class="full-textarea" oninput="updateAllSelects(); saveData()">প্রভাষক, সহকারী শিক্ষক</textarea></div>
                 <div style="flex:1;">প্রতিষ্ঠান তালিকা: <textarea id="rInstList" class="full-textarea" oninput="updateAllSelects(); saveData()">নিজ প্রতিষ্ঠান</textarea></div>
             </div>
@@ -195,9 +209,9 @@
     function logout() { sessionStorage.removeItem('isExamToolUnlocked'); location.reload(); }
 
     function changePass() {
-        const old = prompt("বর্তমান পাসওয়ার্ড দিন:");
+        const old = prompt("বর্তমান পাসওয়ার্ড দিন:");
         if(old === masterPass) {
-            const newP = prompt("নতুন পাসওয়ার্ড দিন:");
+            const newP = prompt("নতুন পাসওয়ার্ড দিন:");
             if(newP) { localStorage.setItem('master_password', newP); masterPass = newP; alert("সফল!"); }
         } else if(old !== null) { alert("ভুল!"); }
     }
