@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Exam Management Tool - Ultimate v18</title>
+    <title>Exam Management Tool - Dynamic Seat (2x5 per page)</title>
     <style>
         #lock-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -21,7 +21,7 @@
         .section { display: none; padding: 20px; }
         .section.active { display: block; }
 
-        .control-box { background: #fff; padding: 20px; border-radius: 8px; max-width: 1000px; margin: 0 auto 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-top: 4px solid #28a745; }
+        .control-box { background: #fff; padding: 20px; border-radius: 8px; max-width: 1100px; margin: 0 auto 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-top: 4px solid #28a745; }
         .box-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; display: block; color: #2c3e50; }
         
         .input-field { padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin: 5px; font-size: 14px; }
@@ -39,7 +39,7 @@
 
         .del-btn { background: #ff4d4d; color: white; border: none; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 5px; }
 
-        .container { width: 100%; max-width: 1050px; margin: 0 auto; background: white; padding: 30px; border: 1px solid #000; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border: 1px solid #000; box-sizing: border-box; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { border: 1px solid #000; padding: 5px; text-align: center; position: relative; }
         
@@ -48,17 +48,140 @@
 
         .header-info-row { display: flex; justify-content: space-between; margin: 10px 0; font-weight: bold; font-size: 16px; border-bottom: 1px solid #000; padding-bottom: 5px; }
 
-        .seat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 190mm; margin: 15px auto; }
-        .seat-card { height: 52mm; border: 2px solid #000; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; text-align: center; }
-        .inner-border { margin: 4px; border: 1px solid #000; height: 92%; display: flex; flex-direction: column; justify-content: center; }
+        /* Dynamic Seat Grid - 2 columns (পাশাপাশি 2টা) */
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* পাশাপাশি 2টা */
+            gap: 4mm;
+            width: 190mm; /* A4 Portrait প্রস্থ (210mm - 20mm margin) */
+            margin: 0 auto;
+            page-break-inside: avoid;
+            background: white;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        .seat-card { 
+            height: 53mm; /* উপরে-নিচে 5টা ফিট করার জন্য (297mm - 20mm margin = 277mm / 5 = 55.4mm, সামান্য কম) */
+            border: 1.2px solid #000; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            text-align: center;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            background: white;
+            border-radius: 1px;
+        }
+        
+        .inner-border { 
+            margin: 2mm; 
+            border: 1px solid #000; 
+            height: calc(100% - 4mm);
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            padding: 1mm;
+        }
 
+        .seat-card .inst-name {
+            font-size: 14pt;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            margin: 0 2mm 1mm;
+            padding-bottom: 1mm;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .seat-card .exam-name {
+            font-weight: bold;
+            font-size: 13pt;
+            margin: 1mm 0;
+        }
+        
+        .seat-card .sub-date {
+            font-size: 11pt;
+            margin: 1mm 0;
+            line-height: 1.2;
+        }
+        
+        .seat-card .class-info {
+            font-size: 11pt;
+            font-weight: bold;
+            margin: 1mm 0;
+            line-height: 1.2;
+        }
+        
+        .seat-card .roll-number {
+            font-size: 22pt;
+            font-weight: bold;
+            margin: 2mm 0 0;
+            line-height: 1.2;
+        }
+
+        /* প্রিন্ট স্টাইল - A4 Portrait */
         @media print {
-            .tab-bar, .control-box, .no-print, #lock-screen, .del-btn { display: none !important; }
-            .section { display: none; }
-            .section.active { display: block; padding: 0; }
-            .container { border: none; padding: 0; }
-
-            /* ড্রপডাউন অ্যারো লুকানোর কোড */
+            /* সমস্ত নো-প্রিন্ট এলিমেন্ট লুকান */
+            .tab-bar, .control-box, .no-print, #lock-screen, .del-btn { 
+                display: none !important; 
+            }
+            
+            /* শুধুমাত্র active সেকশন দেখান */
+            .section { 
+                display: none !important; 
+            }
+            .section.active { 
+                display: block !important; 
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white;
+            }
+            
+            /* কন্টেইনার স্টাইল রিসেট */
+            .container { 
+                border: none; 
+                padding: 0; 
+                box-shadow: none;
+                max-width: 100%;
+                margin: 0;
+            }
+            
+            /* সিট গ্রিড - A4 Portrait, পাশাপাশি 2টা, উপরে-নিচে 5টা (মোট 10) */
+            .seat-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important; /* পাশাপাশি 2টা */
+                gap: 3mm !important;
+                width: 190mm !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                background: white;
+            }
+            
+            /* শেষ গ্রিডের পর পৃষ্ঠা ব্রেক না */
+            .seat-grid:last-child {
+                page-break-after: auto !important;
+                break-after: auto !important;
+            }
+            
+            /* সিট কার্ডের উচ্চতা ডায়নামিক - উপরে-নিচে 5টা */
+            .seat-card {
+                height: 52mm !important; /* 5টা ফিট করার জন্য */
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            
+            /* A4 Portrait পৃষ্ঠা সেটিংস */
+            @page { 
+                size: A4 portrait !important;
+                margin: 10mm !important;
+            }
+            
+            /* ড্রপডাউন অ্যারো লুকান */
             .table-in {
                 -webkit-appearance: none;
                 -moz-appearance: none;
@@ -70,10 +193,15 @@
             }
             select.table-in {
                 text-align: center;
-                text-align-last: center; /* ড্রপডাউন টেক্সট মাঝখানে রাখার জন্য */
+                text-align-last: center;
             }
-
-            @page { margin: 10mm; size: A4; }
+        }
+        
+        /* স্ক্রিনের জন্য রেসপন্সিভ */
+        @media screen and (max-width: 700px) {
+            .seat-grid {
+                grid-template-columns: repeat(1, 1fr); /* মোবাইলে 1 কলাম */
+            }
         }
     </style>
 </head>
@@ -100,25 +228,28 @@
 
     <div id="seat-tab" class="section active">
         <div class="control-box no-print">
-            <span class="box-title">Seat Plan Settings:</span>
+            <span class="box-title">সিট প্ল্যান কনফিগারেশন (পাশাপাশি ২টি, উপরে-নিচে ৫টি = ১০টি/পৃষ্ঠা)</span>
             <div>
                 প্রতিষ্ঠানের নাম: <input type="text" id="sInst" class="input-field" style="width:300px;" oninput="saveData()">
                 পরীক্ষা: <input type="text" id="sExam" class="input-field" style="width:150px;" oninput="saveData()">
                 তারিখ: <input type="text" id="sDate" class="input-field" style="width:120px;" oninput="saveData()"><br>
                 বিষয়: <input type="text" id="sSub" class="input-field" style="width:200px;" oninput="saveData()">
-                Class: <input type="text" id="sClass" class="input-field" style="width:80px;" oninput="saveData()">
-                Section: <input type="text" id="sSec" class="input-field" style="width:80px;" oninput="saveData()">
-                Group: <input type="text" id="sGrp" class="input-field" style="width:100px;" oninput="saveData()"><br>
-                Roll: <input type="number" id="sStart" class="input-field" style="width:60px;" value="1" oninput="saveData()"> to <input type="number" id="sEnd" class="input-field" style="width:60px;" value="10" oninput="saveData()">
+                ক্লাস: <input type="text" id="sClass" class="input-field" style="width:80px;" oninput="saveData()">
+                শাখা: <input type="text" id="sSec" class="input-field" style="width:80px;" oninput="saveData()">
+                গ্রুপ: <input type="text" id="sGrp" class="input-field" style="width:100px;" oninput="saveData()"><br>
+                রোল: <input type="number" id="sStart" class="input-field" style="width:70px;" value="1" oninput="saveData()"> 
+                থেকে <input type="number" id="sEnd" class="input-field" style="width:70px;" value="20" oninput="saveData()">
+                <span style="color:#28a745; font-weight:bold; margin-left:10px;">মোট সিট: <span id="totalSeats">20</span></span>
+                <span style="color:#007bff; font-weight:bold; margin-left:10px;">পৃষ্ঠা: <span id="totalPages">2</span></span>
             </div>
             <div class="btn-container">
-                <button class="btn btn-blue" onclick="window.print()">Print Now</button>
-                <button class="btn btn-purple" onclick="exportJSON()">Master Backup</button>
-                <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">Restore JSON</button>
-                <button class="btn btn-red" onclick="clearData()">Clear Everything</button>
+                <button class="btn btn-blue" onclick="window.print()">প্রিন্ট করুন (A4)</button>
+                <button class="btn btn-purple" onclick="exportJSON()">ব্যাকআপ নিন</button>
+                <button class="btn btn-orange" onclick="document.getElementById('upFile').click()">রিস্টোর করুন</button>
+                <button class="btn btn-red" onclick="clearData()">সব মুছুন</button>
             </div>
         </div>
-        <div id="seat-container" class="seat-grid"></div>
+        <div id="seat-container"></div>
     </div>
 
     <div id="roster-tab" class="section">
@@ -126,10 +257,10 @@
             <span class="box-title">রোস্টার কনফিগারেশন</span>
             বিষয়: <input type="text" id="rSub" class="input-field" style="width:200px;" oninput="saveData()">
             তারিখ: <input type="text" id="rDate" class="input-field" style="width:150px;" oninput="saveData()">
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <div style="flex:1;">শিক্ষক তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateAllSelects(); saveData()">শিক্ষক ১, শিক্ষক ২</textarea></div>
-                <div style="flex:1;">পদবী তালিকা: <textarea id="rDesig" class="full-textarea" oninput="updateAllSelects(); saveData()">প্রভাষক, সহকারী শিক্ষক</textarea></div>
-                <div style="flex:1;">প্রতিষ্ঠান তালিকা: <textarea id="rInstList" class="full-textarea" oninput="updateAllSelects(); saveData()">নিজ প্রতিষ্ঠান</textarea></div>
+            <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:200px;">শিক্ষক তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateAllSelects(); saveData()">শিক্ষক ১, শিক্ষক ২, শিক্ষক ৩</textarea></div>
+                <div style="flex:1; min-width:200px;">পদবী তালিকা: <textarea id="rDesig" class="full-textarea" oninput="updateAllSelects(); saveData()">প্রভাষক, সহকারী শিক্ষক, সিনিয়র শিক্ষক</textarea></div>
+                <div style="flex:1; min-width:200px;">প্রতিষ্ঠান তালিকা: <textarea id="rInstList" class="full-textarea" oninput="updateAllSelects(); saveData()">নিজ প্রতিষ্ঠান, অন্য প্রতিষ্ঠান</textarea></div>
             </div>
             <div class="btn-container">
                 <button class="btn btn-blue" onclick="addRow('roster')">+ নতুন সারি</button>
@@ -203,17 +334,30 @@
             document.getElementById('lock-screen').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
             sessionStorage.setItem('isExamToolUnlocked', 'true');
-        } else { document.getElementById('error-msg').style.display = 'block'; }
+        } else { 
+            document.getElementById('error-msg').style.display = 'block'; 
+        }
     }
 
-    function logout() { sessionStorage.removeItem('isExamToolUnlocked'); location.reload(); }
+    function logout() { 
+        sessionStorage.removeItem('isExamToolUnlocked'); 
+        location.reload(); 
+    }
 
     function changePass() {
         const old = prompt("বর্তমান পাসওয়ার্ড দিন:");
         if(old === masterPass) {
-            const newP = prompt("নতুন পাসওয়ার্ড দিন:");
-            if(newP) { localStorage.setItem('master_password', newP); masterPass = newP; alert("সফল!"); }
-        } else if(old !== null) { alert("ভুল!"); }
+            const newP = prompt("নতুন পাসওয়ার্ড দিন (ন্যূনতম ৪ অক্ষর):");
+            if(newP && newP.length >= 4) { 
+                localStorage.setItem('master_password', newP); 
+                masterPass = newP; 
+                alert("পাসওয়ার্ড পরিবর্তন সফল হয়েছে!"); 
+            } else if(newP) {
+                alert("পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে!");
+            }
+        } else if(old !== null) { 
+            alert("বর্তমান পাসওয়ার্ড ভুল!"); 
+        }
     }
 
     function openTab(id, btn) {
@@ -228,8 +372,10 @@
         const regRows = document.querySelectorAll('#regBody tr');
         rosterRows.forEach((rRow, index) => {
             if(regRows[index]) {
-                regRows[index].querySelector('.room-field').value = rRow.querySelector('.room-field').value;
-                regRows[index].querySelector('.staff-select').value = rRow.querySelector('.staff-select').value;
+                const regRoom = regRows[index].querySelector('.room-field');
+                const regStaff = regRows[index].querySelector('.staff-select');
+                if(regRoom) regRoom.value = rRow.querySelector('.room-field').value;
+                if(regStaff) regStaff.value = rRow.querySelector('.staff-select').value;
             }
         });
         saveData();
@@ -238,7 +384,8 @@
     function removeRow(btn) {
         if(confirm("সারিটি ডিলিট করতে চান?")) {
             btn.closest('tr').remove();
-            saveData(); calculateTotals();
+            saveData(); 
+            calculateTotals();
         }
     }
 
@@ -246,27 +393,36 @@
         const body = type === 'roster' ? document.getElementById('rBody') : document.getElementById('regBody');
         const tr = document.createElement('tr');
         if(type === 'roster') {
-            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data?data.r:''}" oninput="syncToRegister()"></td>
-                            <td><select class="table-in staff-select" onchange="syncToRegister()">${getOpts('rStaff', data?data.s:'')}</select></td>
-                            <td><select class="table-in desig-select">${getOpts('rDesig', data?data.d:'')}</select></td>
-                            <td><select class="table-in inst-select">${getOpts('rInstList', data?data.i:'')}</select></td>
+            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data && data.r ? data.r : ''}" oninput="syncToRegister(); saveData()"></td>
+                            <td><select class="table-in staff-select" onchange="syncToRegister(); saveData()">${getOpts('rStaff', data && data.s ? data.s : '')}</select></td>
+                            <td><select class="table-in desig-select" onchange="saveData()">${getOpts('rDesig', data && data.d ? data.d : '')}</select></td>
+                            <td><select class="table-in inst-select" onchange="saveData()">${getOpts('rInstList', data && data.i ? data.i : '')}</select></td>
                             <td><button class="del-btn no-print" onclick="removeRow(this)">X</button></td>`;
         } else {
-            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data?data.r:''}" oninput="saveData()"></td>
-                            <td><select class="table-in staff-select" onchange="saveData()">${getOpts('rStaff', data?data.s:'')}</select></td>
-                            <td><input type="number" class="table-in g-field" value="${data?data.g:''}" oninput="calc(this)"></td>
-                            <td><input type="number" class="table-in u-field" value="${data?data.u:''}" oninput="calc(this)"></td>
-                            <td><input type="text" class="table-in f-field" value="${data?data.f:''}" readonly></td>
+            const gVal = data && data.g ? data.g : '';
+            const uVal = data && data.u ? data.u : '';
+            const fVal = data && data.f ? data.f : '';
+            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data && data.r ? data.r : ''}" oninput="saveData()"></td>
+                            <td><select class="table-in staff-select" onchange="saveData()">${getOpts('rStaff', data && data.s ? data.s : '')}</select></td>
+                            <td><input type="number" class="table-in g-field" value="${gVal}" oninput="calc(this)"></td>
+                            <td><input type="number" class="table-in u-field" value="${uVal}" oninput="calc(this)"></td>
+                            <td><input type="text" class="table-in f-field" value="${fVal}" readonly></td>
                             <td><button class="del-btn no-print" onclick="removeRow(this)">X</button></td>`;
         }
         body.appendChild(tr);
         if(type === 'reg') calculateTotals();
+        saveData();
     }
 
     function getOpts(id, sel) {
         let o = '<option value=""></option>';
         let area = document.getElementById(id);
-        if(area) area.value.split(',').forEach(t => { let v = t.trim(); if(v) o += `<option value="${v}" ${v===sel?'selected':''}>${v}</option>`; });
+        if(area && area.value) {
+            area.value.split(',').forEach(t => { 
+                let v = t.trim(); 
+                if(v) o += `<option value="${v}" ${v===sel ? 'selected' : ''}>${v}</option>`; 
+            });
+        }
         return o;
     }
 
@@ -274,47 +430,114 @@
         document.querySelectorAll('.staff-select').forEach(s => { let sv = s.value; s.innerHTML = getOpts('rStaff', sv); });
         document.querySelectorAll('.desig-select').forEach(d => { let dv = d.value; d.innerHTML = getOpts('rDesig', dv); });
         document.querySelectorAll('.inst-select').forEach(i => { let iv = i.value; i.innerHTML = getOpts('rInstList', iv); });
+        saveData();
     }
 
     function calc(el) {
         if(el) {
             const row = el.closest('tr');
-            row.querySelector('.f-field').value = (row.querySelector('.g-field').value || 0) - (row.querySelector('.u-field').value || 0);
+            const g = parseInt(row.querySelector('.g-field').value) || 0;
+            const u = parseInt(row.querySelector('.u-field').value) || 0;
+            row.querySelector('.f-field').value = g - u;
         }
-        calculateTotals(); saveData();
+        calculateTotals(); 
+        saveData();
     }
 
     function calculateTotals() {
-        let tg = 0, tu = 0, tf = 0, hasData = false;
+        let tg = 0, tu = 0, tf = 0;
         document.querySelectorAll('#regBody tr').forEach(tr => {
-            let g = parseInt(tr.querySelector('.g-field').value), u = parseInt(tr.querySelector('.u-field').value), f = parseInt(tr.querySelector('.f-field').value);
-            if(!isNaN(g) || !isNaN(u)) hasData = true;
-            tg += g || 0; tu += u || 0; tf += f || 0;
+            let g = parseInt(tr.querySelector('.g-field').value) || 0;
+            let u = parseInt(tr.querySelector('.u-field').value) || 0;
+            let f = parseInt(tr.querySelector('.f-field').value) || 0;
+            tg += g; tu += u; tf += f;
         });
-        document.getElementById('totalG').innerText = hasData ? tg : "";
-        document.getElementById('totalU').innerText = hasData ? tu : "";
-        document.getElementById('totalF').innerText = hasData ? tf : "";
+        document.getElementById('totalG').innerText = tg > 0 ? tg : "";
+        document.getElementById('totalU').innerText = tu > 0 ? tu : "";
+        document.getElementById('totalF').innerText = tf > 0 ? tf : "";
     }
 
     function smartMerge(bodyId) {
-        const rows = document.getElementById(bodyId).rows;
-        for(let r of rows) { r.cells[0].style.display = ''; r.cells[0].rowSpan = 1; }
+        const tbody = document.getElementById(bodyId);
+        const rows = tbody.rows;
+        
+        // Reset all row spans
+        for(let r of rows) { 
+            if(r.cells[0]) {
+                r.cells[0].style.display = ''; 
+                r.cells[0].rowSpan = 1; 
+            }
+        }
+        
         for(let i=0; i<rows.length; i++) {
-            let val = rows[i].querySelector('.room-field').value; if(!val) continue;
+            const roomField = rows[i].querySelector('.room-field');
+            if(!roomField) continue;
+            let val = roomField.value; 
+            if(!val) continue;
             let span = 1;
-            for(let j=i+1; j<rows.length; j++) { if(rows[j].querySelector('.room-field').value === val) { span++; rows[j].cells[0].style.display = 'none'; } else break; }
-            if(span > 1) { rows[i].cells[0].rowSpan = span; i += (span-1); }
+            for(let j=i+1; j<rows.length; j++) { 
+                const nextRoomField = rows[j].querySelector('.room-field');
+                if(nextRoomField && nextRoomField.value === val) { 
+                    span++; 
+                    if(rows[j].cells[0]) rows[j].cells[0].style.display = 'none'; 
+                } else { 
+                    break; 
+                }
+            }
+            if(span > 1 && rows[i].cells[0]) { 
+                rows[i].cells[0].rowSpan = span; 
+                i += (span-1); 
+            }
         }
     }
 
     function saveData() {
         const data = {
-            seat: { inst: document.getElementById('sInst').value, exam: document.getElementById('sExam').value, sub: document.getElementById('sSub').value, date: document.getElementById('sDate').value, cls: document.getElementById('sClass').value, sec: document.getElementById('sSec').value, grp: document.getElementById('sGrp').value, start: document.getElementById('sStart').value, end: document.getElementById('sEnd').value },
-            roster: { sub: document.getElementById('rSub').value, date: document.getElementById('rDate').value, staff: document.getElementById('rStaff').value, desig: document.getElementById('rDesig').value, insts: document.getElementById('rInstList').value, rows: [] },
-            reg: { sub: document.getElementById('regSub').value, date: document.getElementById('regDate').value, rows: [] }
+            seat: { 
+                inst: document.getElementById('sInst').value, 
+                exam: document.getElementById('sExam').value, 
+                sub: document.getElementById('sSub').value, 
+                date: document.getElementById('sDate').value, 
+                cls: document.getElementById('sClass').value, 
+                sec: document.getElementById('sSec').value, 
+                grp: document.getElementById('sGrp').value, 
+                start: document.getElementById('sStart').value, 
+                end: document.getElementById('sEnd').value 
+            },
+            roster: { 
+                sub: document.getElementById('rSub').value, 
+                date: document.getElementById('rDate').value, 
+                staff: document.getElementById('rStaff').value, 
+                desig: document.getElementById('rDesig').value, 
+                insts: document.getElementById('rInstList').value, 
+                rows: [] 
+            },
+            reg: { 
+                sub: document.getElementById('regSub').value, 
+                date: document.getElementById('regDate').value, 
+                rows: [] 
+            }
         };
-        document.querySelectorAll('#rBody tr').forEach(tr => data.roster.rows.push({ r: tr.querySelector('.room-field').value, s: tr.querySelector('.staff-select').value, d: tr.querySelector('.desig-select').value, i: tr.querySelector('.inst-select').value }));
-        document.querySelectorAll('#regBody tr').forEach(tr => data.reg.rows.push({ r: tr.querySelector('.room-field').value, s: tr.querySelector('.staff-select').value, g: tr.querySelector('.g-field').value, u: tr.querySelector('.u-field').value, f: tr.querySelector('.f-field').value }));
+        
+        document.querySelectorAll('#rBody tr').forEach(tr => {
+            data.roster.rows.push({ 
+                r: tr.querySelector('.room-field') ? tr.querySelector('.room-field').value : '', 
+                s: tr.querySelector('.staff-select') ? tr.querySelector('.staff-select').value : '', 
+                d: tr.querySelector('.desig-select') ? tr.querySelector('.desig-select').value : '', 
+                i: tr.querySelector('.inst-select') ? tr.querySelector('.inst-select').value : '' 
+            });
+        });
+        
+        document.querySelectorAll('#regBody tr').forEach(tr => {
+            data.reg.rows.push({ 
+                r: tr.querySelector('.room-field') ? tr.querySelector('.room-field').value : '', 
+                s: tr.querySelector('.staff-select') ? tr.querySelector('.staff-select').value : '', 
+                g: tr.querySelector('.g-field') ? tr.querySelector('.g-field').value : '', 
+                u: tr.querySelector('.u-field') ? tr.querySelector('.u-field').value : '', 
+                f: tr.querySelector('.f-field') ? tr.querySelector('.f-field').value : '' 
+            });
+        });
+        
         localStorage.setItem('exam_db_final', JSON.stringify(data));
         updateView(data);
     }
@@ -326,51 +549,145 @@
         document.getElementById('rDateView').innerText = data.roster.date || "...";
         document.getElementById('regSubView').innerText = data.reg.sub || "...";
         document.getElementById('regDateView').innerText = data.reg.date || "...";
+        
         const cont = document.getElementById('seat-container');
         cont.innerHTML = '';
+        
         const s = data.seat;
-        for(let i=parseInt(s.start); i<=parseInt(s.end); i++) {
-            let subDateLine = (s.sub.trim() || s.date.trim()) ? `<div style="font-size:12pt;">${[s.sub, s.date].filter(x=>x.trim()).join(' | ')}</div>` : "";
-            let classParts = [`Class: ${s.cls}`, `Sec: ${s.sec}`, `Grp: ${s.grp}`].filter(x => !x.endsWith(': '));
-            let classLine = classParts.length ? `<div style="font-size:13pt; font-weight:bold;">${classParts.join(' | ')}</div>` : "";
-            cont.innerHTML += `<div class="seat-card"><div class="inner-border"><div style="font-size:15pt; font-weight:bold; border-bottom:1px solid #000; margin:0 15px 5px;">${s.inst || 'প্রতিষ্ঠানের নাম'}</div><div style="font-weight:bold; font-size:14pt;">${s.exam || 'পরীক্ষার নাম'}</div>${subDateLine}${classLine}<div style="font-size:26pt; font-weight:bold;">Roll-${i}</div></div></div>`;
+        const start = parseInt(s.start) || 1;
+        const end = parseInt(s.end) || 20;
+        const totalSeats = end - start + 1;
+        const seatsPerPage = 10; // পাশাপাশি 2 × উপরে-নিচে 5 = 10
+        const totalPages = Math.ceil(totalSeats / seatsPerPage);
+        
+        // মোট সিট ও পৃষ্ঠা সংখ্যা দেখান
+        document.getElementById('totalSeats').innerText = totalSeats;
+        document.getElementById('totalPages').innerText = totalPages;
+        
+        // ডায়নামিকভাবে পৃষ্ঠা তৈরি করুন
+        for(let page = 0; page < totalPages; page++) {
+            const pageStart = start + (page * seatsPerPage);
+            const pageEnd = Math.min(start + ((page + 1) * seatsPerPage) - 1, end);
+            
+            // প্রতিটি পৃষ্ঠার জন্য আলাদা গ্রিড তৈরি করুন
+            const gridDiv = document.createElement('div');
+            gridDiv.className = 'seat-grid';
+            
+            // এই পৃষ্ঠার সিটগুলো তৈরি করুন
+            for(let roll = pageStart; roll <= pageEnd; roll++) {
+                let subDateLine = (s.sub && s.sub.trim()) || (s.date && s.date.trim()) ? 
+                    `<div class="sub-date">${[s.sub, s.date].filter(x => x && x.trim()).join(' | ')}</div>` : "";
+                
+                let classParts = [];
+                if(s.cls && s.cls.trim()) classParts.push(`ক্লাস: ${s.cls}`);
+                if(s.sec && s.sec.trim()) classParts.push(`শাখা: ${s.sec}`);
+                if(s.grp && s.grp.trim()) classParts.push(`গ্রুপ: ${s.grp}`);
+                let classLine = classParts.length ? `<div class="class-info">${classParts.join(' | ')}</div>` : "";
+                
+                const seatCard = document.createElement('div');
+                seatCard.className = 'seat-card';
+                seatCard.innerHTML = `
+                    <div class="inner-border">
+                        <div class="inst-name">${s.inst || 'প্রতিষ্ঠানের নাম'}</div>
+                        <div class="exam-name">${s.exam || 'পরীক্ষার নাম'}</div>
+                        ${subDateLine}
+                        ${classLine}
+                        <div class="roll-number">রোল-${roll}</div>
+                    </div>
+                `;
+                gridDiv.appendChild(seatCard);
+            }
+            
+            // যদি এই পৃষ্ঠায় ১০টির কম সিট থাকে, তাহলে খালি সিট যোগ করুন (গ্রিড的结构 ঠিক রাখতে)
+            const currentSeats = pageEnd - pageStart + 1;
+            for(let i = currentSeats; i < seatsPerPage; i++) {
+                const emptyCard = document.createElement('div');
+                emptyCard.className = 'seat-card';
+                emptyCard.style.visibility = 'hidden';
+                emptyCard.style.border = '1px dashed #ccc';
+                emptyCard.innerHTML = `<div class="inner-border" style="border:1px dashed #ccc;"></div>`;
+                gridDiv.appendChild(emptyCard);
+            }
+            
+            cont.appendChild(gridDiv);
         }
     }
 
     function exportJSON() {
-        const str = localStorage.getItem('exam_db_final'); if(!str) return;
+        const str = localStorage.getItem('exam_db_final'); 
+        if(!str) {
+            alert("কোনো ডেটা নেই!");
+            return;
+        }
         const blob = new Blob([str], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Exam_Backup.json'; a.click();
+        const a = document.createElement('a'); 
+        a.href = URL.createObjectURL(blob); 
+        a.download = 'Exam_Backup.json'; 
+        a.click();
     }
 
     function importJSON(e) {
         const reader = new FileReader();
-        reader.onload = (event) => { localStorage.setItem('exam_db_final', event.target.result); location.reload(); };
+        reader.onload = (event) => { 
+            localStorage.setItem('exam_db_final', event.target.result); 
+            location.reload(); 
+        };
         reader.readAsText(e.target.files[0]);
     }
 
-    function clearData() { if(confirm("সব মুছবেন?")) { localStorage.clear(); location.reload(); } }
+    function clearData() { 
+        if(confirm("সব ডেটা কি মুছে ফেলতে চান? এই কাজ পূর্বাবস্থায় ফেরানো যাবে না!")) { 
+            localStorage.removeItem('exam_db_final'); 
+            location.reload(); 
+        } 
+    }
 
     window.onload = () => {
         if(sessionStorage.getItem('isExamToolUnlocked') === 'true') {
             document.getElementById('lock-screen').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
         }
+        
         const stored = JSON.parse(localStorage.getItem('exam_db_final'));
         if(stored) {
-            document.getElementById('sInst').value = stored.seat.inst || ''; document.getElementById('sExam').value = stored.seat.exam || '';
-            document.getElementById('sSub').value = stored.seat.sub || ''; document.getElementById('sDate').value = stored.seat.date || '';
-            document.getElementById('sClass').value = stored.seat.cls || ''; document.getElementById('sSec').value = stored.seat.sec || '';
+            document.getElementById('sInst').value = stored.seat.inst || ''; 
+            document.getElementById('sExam').value = stored.seat.exam || '';
+            document.getElementById('sSub').value = stored.seat.sub || ''; 
+            document.getElementById('sDate').value = stored.seat.date || '';
+            document.getElementById('sClass').value = stored.seat.cls || ''; 
+            document.getElementById('sSec').value = stored.seat.sec || '';
             document.getElementById('sGrp').value = stored.seat.grp || '';
-            document.getElementById('sStart').value = stored.seat.start || '1'; document.getElementById('sEnd').value = stored.seat.end || '10';
-            document.getElementById('rSub').value = stored.roster.sub || ''; document.getElementById('rDate').value = stored.roster.date || '';
-            document.getElementById('rStaff').value = stored.roster.staff || ''; document.getElementById('rDesig').value = stored.roster.desig || '';
+            document.getElementById('sStart').value = stored.seat.start || '1'; 
+            document.getElementById('sEnd').value = stored.seat.end || '20';
+            
+            document.getElementById('rSub').value = stored.roster.sub || ''; 
+            document.getElementById('rDate').value = stored.roster.date || '';
+            document.getElementById('rStaff').value = stored.roster.staff || ''; 
+            document.getElementById('rDesig').value = stored.roster.desig || '';
             document.getElementById('rInstList').value = stored.roster.insts || '';
-            document.getElementById('regSub').value = stored.reg.sub || ''; document.getElementById('regDate').value = stored.reg.date || '';
-            if(stored.roster.rows.length) stored.roster.rows.forEach(r => addRow('roster', r)); else addRow('roster');
-            if(stored.reg.rows.length) stored.reg.rows.forEach(r => addRow('reg', r)); else addRow('reg');
-            calculateTotals(); updateView(stored);
-        } else { addRow('roster'); addRow('reg'); }
+            
+            document.getElementById('regSub').value = stored.reg.sub || ''; 
+            document.getElementById('regDate').value = stored.reg.date || '';
+            
+            if(stored.roster.rows && stored.roster.rows.length) {
+                stored.roster.rows.forEach(r => addRow('roster', r)); 
+            } else { 
+                addRow('roster'); 
+            }
+            
+            if(stored.reg.rows && stored.reg.rows.length) {
+                stored.reg.rows.forEach(r => addRow('reg', r)); 
+            } else { 
+                addRow('reg'); 
+            }
+            
+            calculateTotals(); 
+            updateView(stored);
+        } else { 
+            addRow('roster'); 
+            addRow('reg'); 
+            updateView({seat:{start:1, end:20}});
+        }
     };
 </script>
 </body>
