@@ -2,7 +2,8 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Exam Management Tool - Dynamic Seat (2x5 per page)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Management Tool - Font Size Control</title>
     <style>
         #lock-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -29,6 +30,7 @@
         
         .btn-container { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
         .btn { padding: 10px 20px; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
         
         .btn-blue { background: #007bff; }
         .btn-purple { background: #6f42c1; }
@@ -48,12 +50,12 @@
 
         .header-info-row { display: flex; justify-content: space-between; margin: 10px 0; font-weight: bold; font-size: 16px; border-bottom: 1px solid #000; padding-bottom: 5px; }
 
-        /* Dynamic Seat Grid - 2 columns (পাশাপাশি 2টা) */
+        /* সিট গ্রিড - ফিক্সড 10টি সিট প্রতি পৃষ্ঠা */
         .seat-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* পাশাপাশি 2টা */
-            gap: 4mm;
-            width: 190mm; /* A4 Portrait প্রস্থ (210mm - 20mm margin) */
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3mm;
+            width: 190mm;
             margin: 0 auto;
             page-break-inside: avoid;
             background: white;
@@ -62,7 +64,7 @@
         }
         
         .seat-card { 
-            height: 53mm; /* উপরে-নিচে 5টা ফিট করার জন্য (297mm - 20mm margin = 277mm / 5 = 55.4mm, সামান্য কম) */
+            height: 53mm;
             border: 1.2px solid #000; 
             box-sizing: border-box; 
             display: flex; 
@@ -73,6 +75,7 @@
             break-inside: avoid;
             background: white;
             border-radius: 1px;
+            overflow: hidden;
         }
         
         .inner-border { 
@@ -82,55 +85,90 @@
             display: flex; 
             flex-direction: column; 
             justify-content: center;
-            padding: 1mm;
+            padding: 2px;
+            overflow: hidden;
         }
 
+        /* অটো ফিট টেক্সট */
         .seat-card .inst-name {
-            font-size: 14pt;
             font-weight: bold;
             border-bottom: 1px solid #000;
-            margin: 0 2mm 1mm;
-            padding-bottom: 1mm;
+            margin: 0 2px 2px;
+            padding-bottom: 1px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-size: 14pt; /* ডিফল্ট সাইজ */
         }
         
         .seat-card .exam-name {
             font-weight: bold;
-            font-size: 13pt;
-            margin: 1mm 0;
+            margin: 1px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: clamp(9pt, 1.8vw, 13pt);
         }
         
         .seat-card .sub-date {
-            font-size: 11pt;
-            margin: 1mm 0;
-            line-height: 1.2;
+            margin: 1px 0;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: clamp(8pt, 1.5vw, 11pt);
         }
         
         .seat-card .class-info {
-            font-size: 11pt;
             font-weight: bold;
-            margin: 1mm 0;
-            line-height: 1.2;
+            margin: 1px 0;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: clamp(8pt, 1.5vw, 11pt);
         }
         
         .seat-card .roll-number {
-            font-size: 22pt;
             font-weight: bold;
-            margin: 2mm 0 0;
+            margin: 2px 0 0;
             line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: clamp(16pt, 4vw, 22pt);
         }
 
-        /* প্রিন্ট স্টাইল - A4 Portrait */
+        /* ফন্ট সাইজ কন্ট্রোল সেকশন */
+        .font-control {
+            margin-top: 15px; 
+            padding: 10px; 
+            background: #f8f9fa; 
+            border-radius: 5px;
+        }
+        
+        .font-control input[type=range] {
+            width: 200px;
+            height: 5px;
+            background: #d3d3d3;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .font-control input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #28a745;
+            cursor: pointer;
+        }
+
+        /* প্রিন্ট স্টাইল */
         @media print {
-            /* সমস্ত নো-প্রিন্ট এলিমেন্ট লুকান */
-            .tab-bar, .control-box, .no-print, #lock-screen, .del-btn { 
-                display: none !important; 
-            }
-            
-            /* শুধুমাত্র active সেকশন দেখান */
-            .section { 
+            .tab-bar, .control-box, .no-print, #lock-screen, .del-btn, .font-control { 
                 display: none !important; 
             }
             .section.active { 
@@ -139,69 +177,66 @@
                 margin: 0 !important;
                 background: white;
             }
-            
-            /* কন্টেইনার স্টাইল রিসেট */
             .container { 
                 border: none; 
                 padding: 0; 
                 box-shadow: none;
-                max-width: 100%;
-                margin: 0;
             }
-            
-            /* সিট গ্রিড - A4 Portrait, পাশাপাশি 2টা, উপরে-নিচে 5টা (মোট 10) */
             .seat-grid {
                 display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important; /* পাশাপাশি 2টা */
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 3mm !important;
                 width: 190mm !important;
                 margin: 0 auto !important;
                 padding: 0 !important;
                 page-break-after: always !important;
                 break-after: page !important;
-                background: white;
             }
-            
-            /* শেষ গ্রিডের পর পৃষ্ঠা ব্রেক না */
             .seat-grid:last-child {
                 page-break-after: auto !important;
-                break-after: auto !important;
             }
-            
-            /* সিট কার্ডের উচ্চতা ডায়নামিক - উপরে-নিচে 5টা */
             .seat-card {
-                height: 52mm !important; /* 5টা ফিট করার জন্য */
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
+                height: 52mm !important;
             }
-            
-            /* A4 Portrait পৃষ্ঠা সেটিংস */
             @page { 
                 size: A4 portrait !important;
                 margin: 10mm !important;
             }
-            
-            /* ড্রপডাউন অ্যারো লুকান */
             .table-in {
                 -webkit-appearance: none;
                 -moz-appearance: none;
                 appearance: none;
                 border: none !important;
                 background: transparent !important;
-                padding: 0;
-                margin: 0;
-            }
-            select.table-in {
-                text-align: center;
-                text-align-last: center;
             }
         }
+
+        /* রেস্পন্সিভ */
+        @media screen and (max-width: 900px) {
+            .control-box { max-width: 95%; padding: 15px; }
+            .input-field { width: calc(50% - 10px); margin: 5px; }
+            .seat-grid { width: 100%; max-width: 100%; gap: 5px; }
+            .seat-card { height: auto; min-height: 120px; aspect-ratio: 1 / 1.1; }
+        }
         
-        /* স্ক্রিনের জন্য রেসপন্সিভ */
-        @media screen and (max-width: 700px) {
-            .seat-grid {
-                grid-template-columns: repeat(1, 1fr); /* মোবাইলে 1 কলাম */
-            }
+        @media screen and (max-width: 600px) {
+            .tab-btn { padding: 8px 12px; font-size: 13px; }
+            .control-box { padding: 10px; }
+            .box-title { font-size: 16px; }
+            .input-field { width: 100%; margin: 5px 0; }
+            .btn { padding: 8px 15px; font-size: 13px; min-width: 120px; }
+            .full-textarea { width: 100%; }
+            .container { padding: 10px; overflow-x: auto; }
+            table { min-width: 600px; }
+            .header-info-row { flex-direction: column; gap: 5px; font-size: 14px; }
+            .seat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media screen and (max-width: 400px) {
+            .tab-btn { padding: 6px 8px; font-size: 12px; }
+            .btn { width: 100%; margin: 3px 0; }
+            .btn-container { flex-direction: column; gap: 5px; }
+            .seat-grid { grid-template-columns: repeat(1, 1fr); }
         }
     </style>
 </head>
@@ -219,11 +254,11 @@
 
 <div id="main-content" style="display:none;">
     <div class="tab-bar no-print">
-        <button class="tab-btn active" onclick="openTab('seat-tab', this)">Seat Plan</button>
-        <button class="tab-btn" onclick="openTab('roster-tab', this)">Duty Roster</button>
-        <button class="tab-btn" onclick="openTab('reg-tab', this)">Answer Register</button>
-        <button class="tab-btn" style="background:#555" onclick="changePass()">Change Password</button>
-        <button class="tab-btn btn-red" onclick="logout()">Logout</button>
+        <button class="tab-btn active" onclick="openTab('seat-tab', this)">সিট প্ল্যান</button>
+        <button class="tab-btn" onclick="openTab('roster-tab', this)">ডিউটি রোস্টার</button>
+        <button class="tab-btn" onclick="openTab('reg-tab', this)">রেজিস্টার</button>
+        <button class="tab-btn" style="background:#555" onclick="changePass()">পাসওয়ার্ড</button>
+        <button class="tab-btn btn-red" onclick="logout()">লগআউট</button>
     </div>
 
     <div id="seat-tab" class="section active">
@@ -242,6 +277,18 @@
                 <span style="color:#28a745; font-weight:bold; margin-left:10px;">মোট সিট: <span id="totalSeats">20</span></span>
                 <span style="color:#007bff; font-weight:bold; margin-left:10px;">পৃষ্ঠা: <span id="totalPages">2</span></span>
             </div>
+            
+            <!-- ফন্ট সাইজ কন্ট্রোল স্লাইডার -->
+            <div class="font-control no-print">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <span style="font-weight: bold;">প্রতিষ্ঠানের নামের ফন্ট সাইজ:</span>
+                    <input type="range" id="instFontSize" min="10" max="24" value="14" step="1" 
+                           style="width: 200px;" oninput="updateInstFontSize(this.value)">
+                    <span id="fontSizeDisplay" style="min-width: 50px; font-weight: bold;">14pt</span>
+                    <button class="btn btn-sm btn-blue" onclick="resetFontSize()">রিসেট</button>
+                </div>
+            </div>
+            
             <div class="btn-container">
                 <button class="btn btn-blue" onclick="window.print()">প্রিন্ট করুন (A4)</button>
                 <button class="btn btn-purple" onclick="exportJSON()">ব্যাকআপ নিন</button>
@@ -461,7 +508,6 @@
         const tbody = document.getElementById(bodyId);
         const rows = tbody.rows;
         
-        // Reset all row spans
         for(let r of rows) { 
             if(r.cells[0]) {
                 r.cells[0].style.display = ''; 
@@ -489,6 +535,36 @@
                 i += (span-1); 
             }
         }
+    }
+
+    // ফন্ট সাইজ কন্ট্রোল ফাংশন
+    function updateInstFontSize(size) {
+        document.getElementById('fontSizeDisplay').innerText = size + 'pt';
+        localStorage.setItem('inst_font_size', size);
+        
+        document.querySelectorAll('.seat-card .inst-name').forEach(el => {
+            el.style.fontSize = size + 'pt';
+        });
+        
+        let styleTag = document.getElementById('dynamicFontStyle');
+        if(!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = 'dynamicFontStyle';
+            document.head.appendChild(styleTag);
+        }
+        styleTag.innerHTML = `
+            @media print {
+                .seat-card .inst-name {
+                    font-size: ${size}pt !important;
+                }
+            }
+        `;
+    }
+
+    function resetFontSize() {
+        const defaultSize = 14;
+        document.getElementById('instFontSize').value = defaultSize;
+        updateInstFontSize(defaultSize);
     }
 
     function saveData() {
@@ -557,23 +633,19 @@
         const start = parseInt(s.start) || 1;
         const end = parseInt(s.end) || 20;
         const totalSeats = end - start + 1;
-        const seatsPerPage = 10; // পাশাপাশি 2 × উপরে-নিচে 5 = 10
+        const seatsPerPage = 10;
         const totalPages = Math.ceil(totalSeats / seatsPerPage);
         
-        // মোট সিট ও পৃষ্ঠা সংখ্যা দেখান
         document.getElementById('totalSeats').innerText = totalSeats;
         document.getElementById('totalPages').innerText = totalPages;
         
-        // ডায়নামিকভাবে পৃষ্ঠা তৈরি করুন
         for(let page = 0; page < totalPages; page++) {
             const pageStart = start + (page * seatsPerPage);
             const pageEnd = Math.min(start + ((page + 1) * seatsPerPage) - 1, end);
             
-            // প্রতিটি পৃষ্ঠার জন্য আলাদা গ্রিড তৈরি করুন
             const gridDiv = document.createElement('div');
             gridDiv.className = 'seat-grid';
             
-            // এই পৃষ্ঠার সিটগুলো তৈরি করুন
             for(let roll = pageStart; roll <= pageEnd; roll++) {
                 let subDateLine = (s.sub && s.sub.trim()) || (s.date && s.date.trim()) ? 
                     `<div class="sub-date">${[s.sub, s.date].filter(x => x && x.trim()).join(' | ')}</div>` : "";
@@ -588,17 +660,16 @@
                 seatCard.className = 'seat-card';
                 seatCard.innerHTML = `
                     <div class="inner-border">
-                        <div class="inst-name">${s.inst || 'প্রতিষ্ঠানের নাম'}</div>
-                        <div class="exam-name">${s.exam || 'পরীক্ষার নাম'}</div>
-                        ${subDateLine}
-                        ${classLine}
+                        <div class="inst-name" title="${s.inst || 'প্রতিষ্ঠানের নাম'}">${s.inst || 'প্রতিষ্ঠানের নাম'}</div>
+                        <div class="exam-name" title="${s.exam || 'পরীক্ষার নাম'}">${s.exam || 'পরীক্ষার নাম'}</div>
+                        ${subDateLine ? `<div class="sub-date" title="${subDateLine.replace(/<[^>]*>/g, '')}">${subDateLine}</div>` : ''}
+                        ${classLine ? `<div class="class-info" title="${classLine.replace(/<[^>]*>/g, '')}">${classLine}</div>` : ''}
                         <div class="roll-number">রোল-${roll}</div>
                     </div>
                 `;
                 gridDiv.appendChild(seatCard);
             }
             
-            // যদি এই পৃষ্ঠায় ১০টির কম সিট থাকে, তাহলে খালি সিট যোগ করুন (গ্রিড的结构 ঠিক রাখতে)
             const currentSeats = pageEnd - pageStart + 1;
             for(let i = currentSeats; i < seatsPerPage; i++) {
                 const emptyCard = document.createElement('div');
@@ -610,6 +681,12 @@
             }
             
             cont.appendChild(gridDiv);
+        }
+        
+        // ফন্ট সাইজ আপডেট
+        const savedSize = localStorage.getItem('inst_font_size');
+        if(savedSize) {
+            updateInstFontSize(savedSize);
         }
     }
 
@@ -638,6 +715,7 @@
     function clearData() { 
         if(confirm("সব ডেটা কি মুছে ফেলতে চান? এই কাজ পূর্বাবস্থায় ফেরানো যাবে না!")) { 
             localStorage.removeItem('exam_db_final'); 
+            localStorage.removeItem('inst_font_size');
             location.reload(); 
         } 
     }
@@ -687,6 +765,13 @@
             addRow('roster'); 
             addRow('reg'); 
             updateView({seat:{start:1, end:20}});
+        }
+        
+        // ফন্ট সাইজ স্লাইডার লোড
+        const savedSize = localStorage.getItem('inst_font_size');
+        if(savedSize) {
+            document.getElementById('instFontSize').value = savedSize;
+            updateInstFontSize(savedSize);
         }
     };
 </script>
