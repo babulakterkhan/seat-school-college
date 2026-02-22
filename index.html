@@ -3,8 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Management Tool - Font Size Control</title>
+    <title>Exam Management Tool - Font Control</title>
+    
+    <!-- গুগল ফন্ট লিংক (সব ফন্ট একসাথে) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Serif+Bengali:wght@400;700&family=Baloo+Da+2:wght@400;600;700&family=Galada&family=Atma:wght@400;600&family=Anek+Bangla:wght@400;600&display=swap" rel="stylesheet">
+    
     <style>
+        /* ফন্ট রেন্ডারিং ইম্প্রুভমেন্ট */
+        * {
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
         #lock-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #2c3e50; display: flex; flex-direction: column; 
@@ -14,7 +27,12 @@
         .lock-box input { padding: 10px; width: 200px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-size: 16px; }
         .lock-box button { padding: 10px 25px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-        body { font-family: 'SolaimanLipi', Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+        body { 
+            font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif); 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            padding: 0; 
+        }
         .tab-bar { background: #2c3e50; padding: 12px; text-align: center; position: sticky; top: 0; z-index: 10000; display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
         .tab-btn { padding: 10px 20px; font-size: 14px; font-weight: bold; cursor: pointer; border: none; background: #34495e; color: white; border-radius: 5px; }
         .tab-btn.active { background: #28a745; }
@@ -22,14 +40,66 @@
         .section { display: none; padding: 20px; }
         .section.active { display: block; }
 
-        .control-box { background: #fff; padding: 20px; border-radius: 8px; max-width: 1100px; margin: 0 auto 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-top: 4px solid #28a745; }
+        .control-box { 
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 8px; 
+            max-width: 1100px; 
+            margin: 0 auto 20px; 
+            text-align: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            border-top: 4px solid #28a745; 
+            transition: all 0.3s ease; 
+        }
+        
+        /* সেটিংস প্যানেল হাইড করার ক্লাস - শুধু উপরের অংশ লুকাবে */
+        .control-box.hidden .config-section,
+        .control-box.hidden .font-control {
+            display: none;
+        }
+        
+        /* বক্স টাইটেল সবসময় visible থাকবে */
+        .control-box.hidden .box-title {
+            display: block;
+        }
+        
+        /* প্রিন্ট বাটন লাইন সবসময় visible থাকবে */
+        .control-box.hidden .btn-container {
+            display: flex;
+        }
+        
         .box-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; display: block; color: #2c3e50; }
         
-        .input-field { padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin: 5px; font-size: 14px; }
-        .full-textarea { width: 95%; height: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; resize: none; margin-bottom: 10px; font-family: inherit; font-size: 13px; }
+        /* টগল বাটন */
+        .toggle-settings-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-settings-btn:hover {
+            background: #5a6268;
+        }
+        
+        .toggle-settings-btn i {
+            font-size: 16px;
+        }
+        
+        .input-field { padding: 8px; border: 1px solid #ccc; border-radius: 5px; margin: 5px; font-size: 14px; font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif); }
+        .full-textarea { width: 95%; height: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; resize: none; margin-bottom: 10px; font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif); font-size: 13px; }
         
         .btn-container { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; color: #fff; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif); }
         .btn-sm { padding: 5px 10px; font-size: 12px; }
         
         .btn-blue { background: #007bff; }
@@ -38,17 +108,18 @@
         .btn-red { background: #dc3545; }
         .btn-green { background: #28a745; }
         .btn-yellow { background: #ffa500; }
+        .btn-gray { background: #6c757d; }
 
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 5px; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 5px; font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif); }
 
         .container { width: 100%; max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border: 1px solid #000; box-sizing: border-box; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #000; padding: 5px; text-align: center; position: relative; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: center; position: relative; font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif); }
         
         .total-row { font-weight: bold; background-color: #f8f9fa; }
-        .table-in { width: 98%; border: none; text-align: center; outline: none; background: transparent; font-size: 14px; font-family: inherit; }
+        .table-in { width: 98%; border: none; text-align: center; outline: none; background: transparent; font-size: 14px; font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif); }
 
-        .header-info-row { display: flex; justify-content: space-between; margin: 10px 0; font-weight: bold; font-size: 16px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+        .header-info-row { display: flex; justify-content: space-between; margin: 10px 0; font-weight: bold; font-size: 16px; border-bottom: 1px solid #000; padding-bottom: 5px; font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif); }
 
         /* সিট গ্রিড - ফিক্সড 10টি সিট প্রতি পৃষ্ঠা */
         .seat-grid {
@@ -89,20 +160,28 @@
             overflow: hidden;
         }
 
-        /* অটো ফিট টেক্সট */
+        /* সিট কার্ডের সব লেখা বোল্ড */
+        .seat-card .inst-name,
+        .seat-card .exam-name,
+        .seat-card .sub-date,
+        .seat-card .class-info,
+        .seat-card .roll-number {
+            font-weight: bold !important;
+            font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif);
+            line-height: var(--line-height, 1.2);
+        }
+
         .seat-card .inst-name {
-            font-weight: bold;
             border-bottom: 1px solid #000;
             margin: 0 2px 2px;
             padding-bottom: 1px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 14pt; /* ডিফল্ট সাইজ */
+            font-size: 14pt;
         }
         
         .seat-card .exam-name {
-            font-weight: bold;
             margin: 1px 0;
             white-space: nowrap;
             overflow: hidden;
@@ -112,7 +191,7 @@
         
         .seat-card .sub-date {
             margin: 1px 0;
-            line-height: 1.1;
+            line-height: var(--line-height, 1.1);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -120,9 +199,8 @@
         }
         
         .seat-card .class-info {
-            font-weight: bold;
             margin: 1px 0;
-            line-height: 1.1;
+            line-height: var(--line-height, 1.1);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -130,21 +208,42 @@
         }
         
         .seat-card .roll-number {
-            font-weight: bold;
             margin: 2px 0 0;
-            line-height: 1.2;
+            line-height: var(--line-height, 1.2);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             font-size: clamp(16pt, 4vw, 22pt);
         }
 
-        /* ফন্ট সাইজ কন্ট্রোল সেকশন */
+        /* ফন্ট কন্ট্রোল সেকশন */
         .font-control {
             margin-top: 15px; 
-            padding: 10px; 
+            padding: 15px; 
             background: #f8f9fa; 
             border-radius: 5px;
+            max-height: 500px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .font-control.hidden {
+            display: none;
+        }
+        
+        .font-control-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+        
+        .font-control-item:last-child {
+            border-bottom: none;
         }
         
         .font-control input[type=range] {
@@ -165,10 +264,37 @@
             background: #28a745;
             cursor: pointer;
         }
+        
+        .font-control select {
+            padding: 8px 15px;
+            border: 2px solid #28a745;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+            font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif);
+        }
+        
+        .font-label {
+            font-weight: bold;
+            min-width: 200px;
+            text-align: right;
+            font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif);
+        }
+        
+        .font-value {
+            min-width: 60px;
+            font-weight: bold;
+            color: #28a745;
+            font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif);
+            text-align: center;
+        }
 
         /* প্রিন্ট স্টাইল */
         @media print {
-            .tab-bar, .control-box, .no-print, #lock-screen, .del-btn, .font-control { 
+            .tab-bar, .control-box, .no-print, #lock-screen, .del-btn, .font-control, .toggle-settings-btn { 
                 display: none !important; 
             }
             .section.active { 
@@ -209,6 +335,18 @@
                 border: none !important;
                 background: transparent !important;
             }
+            
+            /* প্রিন্টে সিলেক্টেড ফন্ট ও লাইন-হাইট রাখা হয়েছে */
+            body, .seat-card, .container, table, th, td {
+                font-family: var(--selected-font, 'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif) !important;
+            }
+            .seat-card .inst-name,
+            .seat-card .exam-name,
+            .seat-card .sub-date,
+            .seat-card .class-info,
+            .seat-card .roll-number {
+                line-height: var(--line-height, 1.2) !important;
+            }
         }
 
         /* রেস্পন্সিভ */
@@ -217,6 +355,7 @@
             .input-field { width: calc(50% - 10px); margin: 5px; }
             .seat-grid { width: 100%; max-width: 100%; gap: 5px; }
             .seat-card { height: auto; min-height: 120px; aspect-ratio: 1 / 1.1; }
+            .font-label { min-width: 150px; }
         }
         
         @media screen and (max-width: 600px) {
@@ -230,6 +369,11 @@
             table { min-width: 600px; }
             .header-info-row { flex-direction: column; gap: 5px; font-size: 14px; }
             .seat-grid { grid-template-columns: repeat(2, 1fr); }
+            .font-control-item { flex-direction: column; gap: 5px; }
+            .font-label { text-align: center; }
+            .font-control select { width: 100%; }
+            .font-control { max-height: 400px; }
+            .toggle-settings-btn { width: 100%; justify-content: center; }
         }
         
         @media screen and (max-width: 400px) {
@@ -262,33 +406,98 @@
     </div>
 
     <div id="seat-tab" class="section active">
-        <div class="control-box no-print">
+        <!-- টগল বাটন - সেটিংস দেখান/লুকান -->
+        <div class="no-print" style="text-align: center; margin-bottom: 10px;">
+            <button class="toggle-settings-btn" onclick="toggleSettings()" id="toggleSettingsBtn">
+                <span id="toggleIcon">🔽</span> <span id="toggleText">সেটিংস লুকান</span>
+            </button>
+        </div>
+        
+        <!-- সেটিংস প্যানেল - পুরো অংশ -->
+        <div class="control-box no-print" id="settingsPanel">
             <span class="box-title">সিট প্ল্যান কনফিগারেশন (পাশাপাশি ২টি, উপরে-নিচে ৫টি = ১০টি/পৃষ্ঠা)</span>
-            <div>
-                প্রতিষ্ঠানের নাম: <input type="text" id="sInst" class="input-field" style="width:300px;" oninput="saveData()">
-                পরীক্ষা: <input type="text" id="sExam" class="input-field" style="width:150px;" oninput="saveData()">
-                তারিখ: <input type="text" id="sDate" class="input-field" style="width:120px;" oninput="saveData()"><br>
-                বিষয়: <input type="text" id="sSub" class="input-field" style="width:200px;" oninput="saveData()">
-                ক্লাস: <input type="text" id="sClass" class="input-field" style="width:80px;" oninput="saveData()">
-                শাখা: <input type="text" id="sSec" class="input-field" style="width:80px;" oninput="saveData()">
-                গ্রুপ: <input type="text" id="sGrp" class="input-field" style="width:100px;" oninput="saveData()"><br>
-                রোল: <input type="number" id="sStart" class="input-field" style="width:70px;" value="1" oninput="saveData()"> 
-                থেকে <input type="number" id="sEnd" class="input-field" style="width:70px;" value="20" oninput="saveData()">
-                <span style="color:#28a745; font-weight:bold; margin-left:10px;">মোট সিট: <span id="totalSeats">20</span></span>
-                <span style="color:#007bff; font-weight:bold; margin-left:10px;">পৃষ্ঠা: <span id="totalPages">2</span></span>
-            </div>
             
-            <!-- ফন্ট সাইজ কন্ট্রোল স্লাইডার -->
-            <div class="font-control no-print">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                    <span style="font-weight: bold;">প্রতিষ্ঠানের নামের ফন্ট সাইজ:</span>
-                    <input type="range" id="instFontSize" min="10" max="24" value="14" step="1" 
-                           style="width: 200px;" oninput="updateInstFontSize(this.value)">
-                    <span id="fontSizeDisplay" style="min-width: 50px; font-weight: bold;">14pt</span>
-                    <button class="btn btn-sm btn-blue" onclick="resetFontSize()">রিসেট</button>
+            <!-- কনফিগারেশন সেকশন - এই অংশ লুকাবে -->
+            <div class="config-section">
+                <div>
+                    প্রতিষ্ঠানের নাম: <input type="text" id="sInst" class="input-field" style="width:300px;" oninput="saveData()">
+                    পরীক্ষা: <input type="text" id="sExam" class="input-field" style="width:150px;" oninput="saveData()">
+                    তারিখ: <input type="text" id="sDate" class="input-field" style="width:120px;" oninput="saveData()"><br>
+                    বিষয়: <input type="text" id="sSub" class="input-field" style="width:200px;" oninput="saveData()">
+                    ক্লাস: <input type="text" id="sClass" class="input-field" style="width:80px;" oninput="saveData()">
+                    শাখা: <input type="text" id="sSec" class="input-field" style="width:80px;" oninput="saveData()">
+                    বিভাগ: <input type="text" id="sGrp" class="input-field" style="width:100px;" oninput="saveData()"><br>
+                    রোল: <input type="number" id="sStart" class="input-field" style="width:70px;" value="1" oninput="saveData()"> 
+                    থেকে <input type="number" id="sEnd" class="input-field" style="width:70px;" value="20" oninput="saveData()">
+                    <span style="color:#28a745; font-weight:bold; margin-left:10px;">মোট সিট: <span id="totalSeats">২০</span></span>
+                    <span style="color:#007bff; font-weight:bold; margin-left:10px;">পৃষ্ঠা: <span id="totalPages">২</span></span>
                 </div>
             </div>
             
+            <!-- ফন্ট কন্ট্রোল সেকশন - এই অংশ লুকাবে -->
+            <div class="font-control no-print" id="fontControlPanel">
+                <div class="font-control-item">
+                    <span class="font-label">গুগল ফন্ট সিলেক্ট করুন:</span>
+                    <select id="fontSelector" onchange="changeGoogleFont(this.value)">
+                        <option value="'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif">হিন্দ সিলিগুরি (Hind Siliguri)</option>
+                        <option value="'Noto Serif Bengali', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif">নোটো সেরিফ বাংলা (Noto Serif Bengali)</option>
+                        <option value="'Baloo Da 2', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif">বালু দা ২ (Baloo Da 2)</option>
+                        <option value="'Galada', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif">গলাদা (Galada)</option>
+                        <option value="'Atma', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif">আত্মা (Atma)</option>
+                        <option value="'Anek Bangla', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif">অনেক বাংলা (Anek Bangla)</option>
+                        <option value="'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif">নিকোশ (Nikosh) - লোকাল</option>
+                        <option value="'Siyam Rupali', 'Nikosh', 'SolaimanLipi', Arial, sans-serif">সিয়াম রূপালী (Siyam Rupali) - লোকাল</option>
+                        <option value="'SolaimanLipi', 'Nikosh', 'Siyam Rupali', Arial, sans-serif">সোলাইমান লিপি (SolaimanLipi) - লোকাল</option>
+                    </select>
+                    <button class="btn btn-sm btn-green" onclick="saveFontPreference()">সংরক্ষণ করুন</button>
+                    <button class="btn btn-sm btn-blue" onclick="resetToDefaultFont()">রিসেট</button>
+                </div>
+                
+                <!-- লাইন গ্যাপ কন্ট্রোল স্লাইডার -->
+                <div class="font-control-item">
+                    <span class="font-label">লাইন গ্যাপ (লাইনের মাঝের দূরত্ব):</span>
+                    <input type="range" id="lineHeightControl" min="0.8" max="2.0" value="1.2" step="0.05" oninput="updateLineHeight(this.value)">
+                    <span class="font-value" id="lineHeightDisplay">1.2</span>
+                    <button class="btn btn-sm btn-blue" onclick="resetLineHeight()">রিসেট</button>
+                </div>
+                
+                <div class="font-control-item">
+                    <span class="font-label">প্রথম লাইন (প্রতিষ্ঠানের নাম):</span>
+                    <input type="range" id="instFontSize" min="10" max="24" value="14" step="1" oninput="updateInstFontSize(this.value)">
+                    <span class="font-value" id="instFontDisplay">14pt</span>
+                    <button class="btn btn-sm btn-blue" onclick="resetInstFontSize()">রিসেট</button>
+                </div>
+                
+                <div class="font-control-item">
+                    <span class="font-label">দ্বিতীয় লাইন (পরীক্ষার নাম):</span>
+                    <input type="range" id="examFontSize" min="8" max="20" value="12" step="1" oninput="updateExamFontSize(this.value)">
+                    <span class="font-value" id="examFontDisplay">12pt</span>
+                    <button class="btn btn-sm btn-blue" onclick="resetExamFontSize()">রিসেট</button>
+                </div>
+                
+                <div class="font-control-item">
+                    <span class="font-label">তৃতীয় লাইন (বিষয় | তারিখ):</span>
+                    <input type="range" id="subDateFontSize" min="7" max="18" value="10" step="1" oninput="updateSubDateFontSize(this.value)">
+                    <span class="font-value" id="subDateFontDisplay">10pt</span>
+                    <button class="btn btn-sm btn-blue" onclick="resetSubDateFontSize()">রিসেট</button>
+                </div>
+                
+                <div class="font-control-item">
+                    <span class="font-label">চতুর্থ লাইন (ক্লাস | শাখা | বিভাগ):</span>
+                    <input type="range" id="classFontSize" min="7" max="18" value="10" step="1" oninput="updateClassFontSize(this.value)">
+                    <span class="font-value" id="classFontDisplay">10pt</span>
+                    <button class="btn btn-sm btn-blue" onclick="resetClassFontSize()">রিসেট</button>
+                </div>
+                
+                <div class="font-control-item">
+                    <span class="font-label">পঞ্চম লাইন (রোল নাম্বার):</span>
+                    <input type="range" id="rollFontSize" min="14" max="28" value="20" step="1" oninput="updateRollFontSize(this.value)">
+                    <span class="font-value" id="rollFontDisplay">20pt</span>
+                    <button class="btn btn-sm btn-blue" onclick="resetRollFontSize()">রিসেট</button>
+                </div>
+            </div>
+            
+            <!-- প্রিন্ট বাটন লাইন - এই অংশ সবসময় visible থাকবে -->
             <div class="btn-container">
                 <button class="btn btn-blue" onclick="window.print()">প্রিন্ট করুন (A4)</button>
                 <button class="btn btn-purple" onclick="exportJSON()">ব্যাকআপ নিন</button>
@@ -296,6 +505,8 @@
                 <button class="btn btn-red" onclick="clearData()">সব মুছুন</button>
             </div>
         </div>
+        
+        <!-- সিট কন্টেইনার -->
         <div id="seat-container"></div>
     </div>
 
@@ -412,6 +623,42 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         btn.classList.add('active');
+        
+        // ট্যাব পরিবর্তন হলে সেটিংস প্যানেলের অবস্থা সংরক্ষিত রাখুন
+        const settingsHidden = localStorage.getItem('settings_hidden') === 'true';
+        const panel = document.getElementById('settingsPanel');
+        const toggleBtn = document.getElementById('toggleSettingsBtn');
+        
+        if(panel && toggleBtn) {
+            if(settingsHidden) {
+                panel.classList.add('hidden');
+                document.getElementById('toggleIcon').innerText = '🔼';
+                document.getElementById('toggleText').innerText = 'সেটিংস দেখান';
+            } else {
+                panel.classList.remove('hidden');
+                document.getElementById('toggleIcon').innerText = '🔽';
+                document.getElementById('toggleText').innerText = 'সেটিংস লুকান';
+            }
+        }
+    }
+
+    // সেটিংস টগল ফাংশন
+    function toggleSettings() {
+        const panel = document.getElementById('settingsPanel');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const toggleText = document.getElementById('toggleText');
+        
+        if(panel.classList.contains('hidden')) {
+            panel.classList.remove('hidden');
+            toggleIcon.innerText = '🔽';
+            toggleText.innerText = 'সেটিংস লুকান';
+            localStorage.setItem('settings_hidden', 'false');
+        } else {
+            panel.classList.add('hidden');
+            toggleIcon.innerText = '🔼';
+            toggleText.innerText = 'সেটিংস দেখান';
+            localStorage.setItem('settings_hidden', 'true');
+        }
     }
 
     function syncToRegister() {
@@ -537,34 +784,195 @@
         }
     }
 
-    // ফন্ট সাইজ কন্ট্রোল ফাংশন
+    // লাইন গ্যাপ কন্ট্রোল ফাংশন
+    function updateLineHeight(value) {
+        document.getElementById('lineHeightDisplay').innerText = value;
+        document.documentElement.style.setProperty('--line-height', value);
+        localStorage.setItem('line_height', value);
+        updatePrintStyles();
+    }
+
+    function resetLineHeight() {
+        const defaultHeight = 1.2;
+        document.getElementById('lineHeightControl').value = defaultHeight;
+        updateLineHeight(defaultHeight);
+    }
+
+    // গুগল ফন্ট পরিবর্তনের ফাংশন
+    function changeGoogleFont(fontValue) {
+        document.documentElement.style.setProperty('--selected-font', fontValue);
+        localStorage.setItem('selected_font', fontValue);
+        
+        // ড্রপডাউনে সিলেক্টেড ভ্যালু সেট করা
+        const select = document.getElementById('fontSelector');
+        for(let i = 0; i < select.options.length; i++) {
+            if(select.options[i].value === fontValue) {
+                select.selectedIndex = i;
+                break;
+            }
+        }
+    }
+    
+    function saveFontPreference() {
+        const select = document.getElementById('fontSelector');
+        const selectedFont = select.value;
+        changeGoogleFont(selectedFont);
+        alert('ফন্ট পছন্দ সংরক্ষিত হয়েছে!');
+    }
+    
+    function resetToDefaultFont() {
+        const defaultFont = "'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif";
+        changeGoogleFont(defaultFont);
+        
+        // ডিফল্ট সিলেক্ট করা
+        const select = document.getElementById('fontSelector');
+        for(let i = 0; i < select.options.length; i++) {
+            if(select.options[i].value === defaultFont) {
+                select.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    // ফন্ট সাইজ কন্ট্রোল ফাংশন - ইনস্টিটিউট
     function updateInstFontSize(size) {
-        document.getElementById('fontSizeDisplay').innerText = size + 'pt';
+        document.getElementById('instFontDisplay').innerText = size + 'pt';
         localStorage.setItem('inst_font_size', size);
         
         document.querySelectorAll('.seat-card .inst-name').forEach(el => {
             el.style.fontSize = size + 'pt';
         });
         
+        updatePrintStyles();
+    }
+
+    function resetInstFontSize() {
+        const defaultSize = 14;
+        document.getElementById('instFontSize').value = defaultSize;
+        updateInstFontSize(defaultSize);
+    }
+
+    // ফন্ট সাইজ কন্ট্রোল ফাংশন - পরীক্ষার নাম
+    function updateExamFontSize(size) {
+        document.getElementById('examFontDisplay').innerText = size + 'pt';
+        localStorage.setItem('exam_font_size', size);
+        
+        document.querySelectorAll('.seat-card .exam-name').forEach(el => {
+            el.style.fontSize = size + 'pt';
+        });
+        
+        updatePrintStyles();
+    }
+
+    function resetExamFontSize() {
+        const defaultSize = 12;
+        document.getElementById('examFontSize').value = defaultSize;
+        updateExamFontSize(defaultSize);
+    }
+
+    // ফন্ট সাইজ কন্ট্রোল ফাংশন - বিষয় ও তারিখ
+    function updateSubDateFontSize(size) {
+        document.getElementById('subDateFontDisplay').innerText = size + 'pt';
+        localStorage.setItem('subdate_font_size', size);
+        
+        document.querySelectorAll('.seat-card .sub-date').forEach(el => {
+            el.style.fontSize = size + 'pt';
+        });
+        
+        updatePrintStyles();
+    }
+
+    function resetSubDateFontSize() {
+        const defaultSize = 10;
+        document.getElementById('subDateFontSize').value = defaultSize;
+        updateSubDateFontSize(defaultSize);
+    }
+
+    // ফন্ট সাইজ কন্ট্রোল ফাংশন - ক্লাস তথ্য
+    function updateClassFontSize(size) {
+        document.getElementById('classFontDisplay').innerText = size + 'pt';
+        localStorage.setItem('class_font_size', size);
+        
+        document.querySelectorAll('.seat-card .class-info').forEach(el => {
+            el.style.fontSize = size + 'pt';
+        });
+        
+        updatePrintStyles();
+    }
+
+    function resetClassFontSize() {
+        const defaultSize = 10;
+        document.getElementById('classFontSize').value = defaultSize;
+        updateClassFontSize(defaultSize);
+    }
+
+    // ফন্ট সাইজ কন্ট্রোল ফাংশন - রোল নাম্বার
+    function updateRollFontSize(size) {
+        document.getElementById('rollFontDisplay').innerText = size + 'pt';
+        localStorage.setItem('roll_font_size', size);
+        
+        document.querySelectorAll('.seat-card .roll-number').forEach(el => {
+            el.style.fontSize = size + 'pt';
+        });
+        
+        updatePrintStyles();
+    }
+
+    function resetRollFontSize() {
+        const defaultSize = 20;
+        document.getElementById('rollFontSize').value = defaultSize;
+        updateRollFontSize(defaultSize);
+    }
+
+    // প্রিন্ট স্টাইল আপডেট
+    function updatePrintStyles() {
         let styleTag = document.getElementById('dynamicFontStyle');
         if(!styleTag) {
             styleTag = document.createElement('style');
             styleTag.id = 'dynamicFontStyle';
             document.head.appendChild(styleTag);
         }
+        
+        const instSize = localStorage.getItem('inst_font_size') || 14;
+        const examSize = localStorage.getItem('exam_font_size') || 12;
+        const subDateSize = localStorage.getItem('subdate_font_size') || 10;
+        const classSize = localStorage.getItem('class_font_size') || 10;
+        const rollSize = localStorage.getItem('roll_font_size') || 20;
+        const selectedFont = localStorage.getItem('selected_font') || "'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif";
+        const lineHeight = localStorage.getItem('line_height') || 1.2;
+        
         styleTag.innerHTML = `
             @media print {
                 .seat-card .inst-name {
-                    font-size: ${size}pt !important;
+                    font-size: ${instSize}pt !important;
+                    font-family: ${selectedFont} !important;
+                    line-height: ${lineHeight} !important;
+                }
+                .seat-card .exam-name {
+                    font-size: ${examSize}pt !important;
+                    font-family: ${selectedFont} !important;
+                    line-height: ${lineHeight} !important;
+                }
+                .seat-card .sub-date {
+                    font-size: ${subDateSize}pt !important;
+                    font-family: ${selectedFont} !important;
+                    line-height: ${lineHeight} !important;
+                }
+                .seat-card .class-info {
+                    font-size: ${classSize}pt !important;
+                    font-family: ${selectedFont} !important;
+                    line-height: ${lineHeight} !important;
+                }
+                .seat-card .roll-number {
+                    font-size: ${rollSize}pt !important;
+                    font-family: ${selectedFont} !important;
+                    line-height: ${lineHeight} !important;
+                }
+                body, .container, table, th, td {
+                    font-family: ${selectedFont} !important;
                 }
             }
         `;
-    }
-
-    function resetFontSize() {
-        const defaultSize = 14;
-        document.getElementById('instFontSize').value = defaultSize;
-        updateInstFontSize(defaultSize);
     }
 
     function saveData() {
@@ -592,7 +1000,16 @@
                 sub: document.getElementById('regSub').value, 
                 date: document.getElementById('regDate').value, 
                 rows: [] 
-            }
+            },
+            fontSizes: {
+                inst: localStorage.getItem('inst_font_size') || 14,
+                exam: localStorage.getItem('exam_font_size') || 12,
+                subdate: localStorage.getItem('subdate_font_size') || 10,
+                class: localStorage.getItem('class_font_size') || 10,
+                roll: localStorage.getItem('roll_font_size') || 20
+            },
+            selectedFont: localStorage.getItem('selected_font') || "'Hind Siliguri', 'Nikosh', 'Siyam Rupali', 'SolaimanLipi', Arial, sans-serif",
+            lineHeight: localStorage.getItem('line_height') || 1.2
         };
         
         document.querySelectorAll('#rBody tr').forEach(tr => {
@@ -636,8 +1053,18 @@
         const seatsPerPage = 10;
         const totalPages = Math.ceil(totalSeats / seatsPerPage);
         
-        document.getElementById('totalSeats').innerText = totalSeats;
-        document.getElementById('totalPages').innerText = totalPages;
+        // ইংরেজি সংখ্যাকে বাংলা সংখ্যায় রূপান্তর করার ফাংশন
+        function toBengaliNumber(num) {
+            const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return num.toString().split('').map(digit => bengaliDigits[parseInt(digit)]).join('');
+        }
+        
+        // মোট সিট এবং পৃষ্ঠা সংখ্যা বাংলায় দেখান
+        const totalSeatsBengali = toBengaliNumber(totalSeats);
+        const totalPagesBengali = toBengaliNumber(totalPages);
+        
+        document.getElementById('totalSeats').innerText = totalSeatsBengali;
+        document.getElementById('totalPages').innerText = totalPagesBengali;
         
         for(let page = 0; page < totalPages; page++) {
             const pageStart = start + (page * seatsPerPage);
@@ -653,8 +1080,11 @@
                 let classParts = [];
                 if(s.cls && s.cls.trim()) classParts.push(`ক্লাস: ${s.cls}`);
                 if(s.sec && s.sec.trim()) classParts.push(`শাখা: ${s.sec}`);
-                if(s.grp && s.grp.trim()) classParts.push(`গ্রুপ: ${s.grp}`);
+                if(s.grp && s.grp.trim()) classParts.push(`বিভাগ: ${s.grp}`);
                 let classLine = classParts.length ? `<div class="class-info">${classParts.join(' | ')}</div>` : "";
+                
+                // বাংলা রোল নাম্বার তৈরি
+                const bengaliRoll = toBengaliNumber(roll);
                 
                 const seatCard = document.createElement('div');
                 seatCard.className = 'seat-card';
@@ -664,7 +1094,7 @@
                         <div class="exam-name" title="${s.exam || 'পরীক্ষার নাম'}">${s.exam || 'পরীক্ষার নাম'}</div>
                         ${subDateLine ? `<div class="sub-date" title="${subDateLine.replace(/<[^>]*>/g, '')}">${subDateLine}</div>` : ''}
                         ${classLine ? `<div class="class-info" title="${classLine.replace(/<[^>]*>/g, '')}">${classLine}</div>` : ''}
-                        <div class="roll-number">রোল-${roll}</div>
+                        <div class="roll-number">রোল-${bengaliRoll}</div>
                     </div>
                 `;
                 gridDiv.appendChild(seatCard);
@@ -684,9 +1114,40 @@
         }
         
         // ফন্ট সাইজ আপডেট
-        const savedSize = localStorage.getItem('inst_font_size');
-        if(savedSize) {
-            updateInstFontSize(savedSize);
+        if(data.fontSizes) {
+            if(data.fontSizes.inst) {
+                document.getElementById('instFontSize').value = data.fontSizes.inst;
+                updateInstFontSize(data.fontSizes.inst);
+            }
+            if(data.fontSizes.exam) {
+                document.getElementById('examFontSize').value = data.fontSizes.exam;
+                updateExamFontSize(data.fontSizes.exam);
+            }
+            if(data.fontSizes.subdate) {
+                document.getElementById('subDateFontSize').value = data.fontSizes.subdate;
+                updateSubDateFontSize(data.fontSizes.subdate);
+            }
+            if(data.fontSizes.class) {
+                document.getElementById('classFontSize').value = data.fontSizes.class;
+                updateClassFontSize(data.fontSizes.class);
+            }
+            if(data.fontSizes.roll) {
+                document.getElementById('rollFontSize').value = data.fontSizes.roll;
+                updateRollFontSize(data.fontSizes.roll);
+            }
+        }
+        
+        // সিলেক্টেড ফন্ট আপডেট
+        if(data.selectedFont) {
+            changeGoogleFont(data.selectedFont);
+        }
+        
+        // লাইন হাইট আপডেট
+        if(data.lineHeight) {
+            document.getElementById('lineHeightControl').value = data.lineHeight;
+            updateLineHeight(data.lineHeight);
+        } else {
+            resetLineHeight();
         }
     }
 
@@ -716,6 +1177,13 @@
         if(confirm("সব ডেটা কি মুছে ফেলতে চান? এই কাজ পূর্বাবস্থায় ফেরানো যাবে না!")) { 
             localStorage.removeItem('exam_db_final'); 
             localStorage.removeItem('inst_font_size');
+            localStorage.removeItem('exam_font_size');
+            localStorage.removeItem('subdate_font_size');
+            localStorage.removeItem('class_font_size');
+            localStorage.removeItem('roll_font_size');
+            localStorage.removeItem('selected_font');
+            localStorage.removeItem('line_height');
+            localStorage.removeItem('settings_hidden');
             location.reload(); 
         } 
     }
@@ -724,6 +1192,36 @@
         if(sessionStorage.getItem('isExamToolUnlocked') === 'true') {
             document.getElementById('lock-screen').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
+        }
+        
+        // সেটিংস প্যানেলের অবস্থা লোড করা
+        const settingsHidden = localStorage.getItem('settings_hidden') === 'true';
+        const panel = document.getElementById('settingsPanel');
+        const toggleBtn = document.getElementById('toggleSettingsBtn');
+        
+        if(panel && toggleBtn) {
+            if(settingsHidden) {
+                panel.classList.add('hidden');
+                document.getElementById('toggleIcon').innerText = '🔼';
+                document.getElementById('toggleText').innerText = 'সেটিংস দেখান';
+            } else {
+                panel.classList.remove('hidden');
+                document.getElementById('toggleIcon').innerText = '🔽';
+                document.getElementById('toggleText').innerText = 'সেটিংস লুকান';
+            }
+        }
+        
+        // সেভ করা ফন্ট লোড করা
+        const savedFont = localStorage.getItem('selected_font');
+        if(savedFont) {
+            changeGoogleFont(savedFont);
+        }
+        
+        // সেভ করা লাইন হাইট লোড করা
+        const savedLineHeight = localStorage.getItem('line_height');
+        if(savedLineHeight) {
+            document.getElementById('lineHeightControl').value = savedLineHeight;
+            updateLineHeight(savedLineHeight);
         }
         
         const stored = JSON.parse(localStorage.getItem('exam_db_final'));
@@ -765,13 +1263,15 @@
             addRow('roster'); 
             addRow('reg'); 
             updateView({seat:{start:1, end:20}});
-        }
-        
-        // ফন্ট সাইজ স্লাইডার লোড
-        const savedSize = localStorage.getItem('inst_font_size');
-        if(savedSize) {
-            document.getElementById('instFontSize').value = savedSize;
-            updateInstFontSize(savedSize);
+            
+            // ডিফল্ট ফন্ট সাইজ সেট করুন
+            resetInstFontSize();
+            resetExamFontSize();
+            resetSubDateFontSize();
+            resetClassFontSize();
+            resetRollFontSize();
+            resetToDefaultFont();
+            resetLineHeight();
         }
     };
 </script>
