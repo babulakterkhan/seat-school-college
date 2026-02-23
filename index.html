@@ -15,7 +15,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        /* আগের সম্পূর্ণ CSS এখানে থাকবে (কোনো পরিবর্তন নেই) */
         * { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; color: white; }
         .lock-box { background: #fff; padding: 30px; border-radius: 10px; text-align: center; color: #333; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
@@ -55,20 +54,23 @@
         .seat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3mm; width: 190mm; margin: 0 auto; page-break-inside: avoid; background: white; padding: 0; box-sizing: border-box; }
         .seat-card { height: 53mm; border: 1.2px solid #000; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; text-align: center; page-break-inside: avoid; break-inside: avoid; background: white; border-radius: 1px; overflow: hidden; }
         .inner-border { margin: 2mm; border: 1px solid #000; height: calc(100% - 4mm); display: flex; flex-direction: column; justify-content: center; padding: 2px; overflow: hidden; }
+        
+        /* Font Sizes controlled by JS/CSS Variables */
         .seat-card .inst-name, .seat-card .exam-name, .seat-card .sub-date, .seat-card .class-info, .seat-card .roll-number { font-weight: bold !important; font-family: inherit; line-height: var(--line-height, 1.2); }
-        .seat-card .inst-name { border-bottom: 1px solid #000; margin: 0 2px 2px; padding-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14pt; }
-        .seat-card .exam-name { margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: clamp(9pt, 1.8vw, 13pt); }
-        .seat-card .sub-date { margin: 1px 0; line-height: var(--line-height, 1.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: clamp(8pt, 1.5vw, 11pt); }
-        .seat-card .class-info { margin: 1px 0; line-height: var(--line-height, 1.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: clamp(8pt, 1.5vw, 11pt); }
-        .seat-card .roll-number { margin: 2px 0 0; line-height: var(--line-height, 1.2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: clamp(16pt, 4vw, 22pt); }
+        
+        .seat-card .inst-name { border-bottom: 1px solid #000; margin: 0 2px 2px; padding-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-inst, 14pt); }
+        .seat-card .exam-name { margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-exam, 12pt); }
+        .seat-card .sub-date { margin: 1px 0; line-height: var(--line-height, 1.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-sub, 10pt); }
+        .seat-card .class-info { margin: 1px 0; line-height: var(--line-height, 1.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-class, 10pt); }
+        .seat-card .roll-number { margin: 2px 0 0; line-height: var(--line-height, 1.2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-roll, 22pt); }
 
         /* Font Control Panel */
-        .font-control { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px; max-height: 500px; overflow-y: auto; }
+        .font-control { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px; max-height: 700px; overflow-y: auto; border: 1px solid #ddd; }
         .font-control-item { display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 12px; padding: 8px 0; border-bottom: 1px dashed #ccc; }
         .font-control input[type=range] { width: 200px; height: 5px; background: #d3d3d3; border-radius: 5px; outline: none; -webkit-appearance: none; }
         .font-control input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #28a745; cursor: pointer; }
         .font-control select { padding: 8px 15px; border: 2px solid #28a745; border-radius: 5px; font-size: 14px; font-weight: bold; background: white; cursor: pointer; min-width: 200px; font-family: inherit; }
-        .font-label { font-weight: bold; min-width: 200px; text-align: right; font-family: inherit; }
+        .font-label { font-weight: bold; min-width: 180px; text-align: right; font-family: inherit; }
         .font-value { min-width: 60px; font-weight: bold; color: #28a745; font-family: inherit; text-align: center; }
 
         @media print {
@@ -81,6 +83,13 @@
             @page { size: A4 portrait !important; margin: 10mm !important; }
             .table-in { border: none !important; background: transparent !important; }
             body, .seat-card, .container, table, th, td { font-family: var(--selected-font, 'Hind Siliguri', Arial, sans-serif) !important; }
+            
+            /* ড্রপডাউন তীর চিহ্ন আড়াল করার জন্য নতুন CSS */
+            select.table-in {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            }
         }
 
         @media screen and (max-width: 900px) {
@@ -141,25 +150,59 @@
             <div class="font-control no-print" id="fontControlPanel">
                 <div class="font-control-item">
                     <span class="font-label">গুগল ফন্ট সিলেক্ট করুন:</span>
-                    <select id="fontSelector" onchange="changeGoogleFont(this.value)">
+                    <select id="fontSelector" onchange="changeGoogleFont(this.value); saveData()">
                         <option value="'Hind Siliguri', Arial, sans-serif">হিন্দ সিলিগুরি</option>
                         <option value="'Noto Serif Bengali', Arial, sans-serif">নোটো সেরিফ বাংলা</option>
                         <option value="'Baloo Da 2', Arial, sans-serif">বালু দা ২</option>
                         <option value="'Atma', Arial, sans-serif">আত্মা</option>
                     </select>
-                    <button class="btn btn-sm btn-green" onclick="saveData()">সংরক্ষণ</button>
                 </div>
+                
                 <div class="font-control-item">
                     <span class="font-label">লাইন গ্যাপ:</span>
                     <input type="range" id="lineHeightControl" min="0.8" max="2.0" value="1.2" step="0.05" oninput="updateLineHeight(this.value); saveData();">
                     <span class="font-value" id="lineHeightDisplay">1.2</span>
                 </div>
-                <!-- Other font controls omitted for brevity but logic remains same -->
+
+                <hr style="border:0; border-top:2px solid #ddd; margin:15px 0;">
+                <h4 style="margin:0 0 15px 0; color:#555;">ফন্ট সাইজ কন্ট্রোল (pt)</h4>
+
+                <div class="font-control-item">
+                    <span class="font-label">প্রতিষ্ঠানের নাম:</span>
+                    <input type="range" id="fsInst" min="8" max="24" value="14" step="1" oninput="updateFontSize('fsInst', this.value); saveData();">
+                    <span class="font-value" id="fsInstVal">14pt</span>
+                </div>
+
+                <div class="font-control-item">
+                    <span class="font-label">পরীক্ষার নাম:</span>
+                    <input type="range" id="fsExam" min="8" max="24" value="12" step="1" oninput="updateFontSize('fsExam', this.value); saveData();">
+                    <span class="font-value" id="fsExamVal">12pt</span>
+                </div>
+
+                <div class="font-control-item">
+                    <span class="font-label">বিষয় / তারিখ:</span>
+                    <input type="range" id="fsSub" min="6" max="20" value="10" step="1" oninput="updateFontSize('fsSub', this.value); saveData();">
+                    <span class="font-value" id="fsSubVal">10pt</span>
+                </div>
+
+                <div class="font-control-item">
+                    <span class="font-label">ক্লাস / শাখা:</span>
+                    <input type="range" id="fsClass" min="6" max="20" value="10" step="1" oninput="updateFontSize('fsClass', this.value); saveData();">
+                    <span class="font-value" id="fsClassVal">10pt</span>
+                </div>
+
+                <div class="font-control-item">
+                    <span class="font-label">রোল নম্বর:</span>
+                    <input type="range" id="fsRoll" min="10" max="36" value="22" step="1" oninput="updateFontSize('fsRoll', this.value); saveData();">
+                    <span class="font-value" id="fsRollVal">22pt</span>
+                </div>
             </div>
             
             <div class="btn-container">
-                <button class="btn btn-blue" onclick="window.print()">প্রিন্ট করুন (A4)</button>
-                <button class="btn btn-red" onclick="clearData()">সব মুছুন</button>
+                <button class="btn btn-blue" onclick="window.print()">🖨️ প্রিন্ট করুন (A4)</button>
+                <button class="btn btn-purple" onclick="backupData()">📥 ব্যাকআপ নিন</button>
+                <button class="btn btn-orange" onclick="restoreBackup()">📤 ব্যাকআপ রিস্টোর করুন</button>
+                <button class="btn btn-red" onclick="clearData()">🗑️ সব মুছুন</button>
             </div>
         </div>
         
@@ -168,17 +211,17 @@
 
     <div id="roster-tab" class="section">
         <div class="control-box no-print">
-            <span class="box-title">রোস্টার কনফিগারেশন</span>
+            <span class="box-title">রোস্টার কনফিগারেশন (এখানে দেওয়া তথ্য রেজিস্টারে আপডেট হবে)</span>
             বিষয়: <input type="text" id="rSub" class="input-field" style="width:200px;" oninput="saveData()">
             তারিখ: <input type="text" id="rDate" class="input-field" style="width:150px;" oninput="saveData()">
             <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-                <div style="flex:1; min-width:200px;">শিক্ষক তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateAllSelects(); saveData()">শিক্ষক ১, শিক্ষক ২</textarea></div>
-                <div style="flex:1; min-width:200px;">পদবী তালিকা: <textarea id="rDesig" class="full-textarea" oninput="updateAllSelects(); saveData()">প্রভাষক, সহকারী শিক্ষক</textarea></div>
-                <div style="flex:1; min-width:200px;">প্রতিষ্ঠান তালিকা: <textarea id="rInstList" class="full-textarea" oninput="updateAllSelects(); saveData()">নিজ প্রতিষ্ঠান</textarea></div>
+                <div style="flex:1; min-width:200px;">শিক্ষক তালিকা: <textarea id="rStaff" class="full-textarea" oninput="updateStaffLists(this.value)">শিক্ষক ১, শিক্ষক ২</textarea></div>
+                <div style="flex:1; min-width:200px;">পদবী তালিকা: <textarea id="rDesig" class="full-textarea" oninput="updateDesignationLists(this.value)">প্রভাষক, সহকারী শিক্ষক</textarea></div>
+                <div style="flex:1; min-width:200px;">প্রতিষ্ঠান তালিকা: <textarea id="rInstList" class="full-textarea" oninput="updateInstituteLists(this.value)">নিজ প্রতিষ্ঠান</textarea></div>
             </div>
             <div class="btn-container">
                 <button class="btn btn-blue" onclick="addRow('roster')">+ নতুন সারি</button>
-                <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
+                <button class="btn btn-green" onclick="window.print()">🖨️ প্রিন্ট করুন</button>
             </div>
         </div>
         <div class="container">
@@ -200,12 +243,9 @@
 
     <div id="reg-tab" class="section">
         <div class="control-box no-print">
-            <span class="box-title">রেজিস্টার কন্ট্রোল প্যানেল</span>
-            বিষয়: <input type="text" id="regSub" class="input-field" style="width:200px;" oninput="saveData()">
-            তারিখ: <input type="text" id="regDate" class="input-field" style="width:150px;" oninput="saveData()">
+            <span class="box-title">রেজিস্টার (রোস্টার থেকে অটো আপডেট হবে)</span>
             <div class="btn-container">
-                <button class="btn btn-blue" onclick="addRow('reg')">+ নতুন সারি</button>
-                <button class="btn btn-green" onclick="window.print()">প্রিন্ট করুন</button>
+                <button class="btn btn-green" onclick="window.print()">🖨️ প্রিন্ট করুন</button>
             </div>
         </div>
         <div class="container">
@@ -235,15 +275,15 @@
 <script>
     // ==================== FIREBASE CONFIGURATION ====================
     const firebaseConfig = {
-    apiKey: "AIzaSyCceMHV_tMf7CDQUjEhoPiByezOdhc955o",
-    authDomain: "school-rutine.firebaseapp.com",
-    databaseURL: "https://school-rutine-default-rtdb.firebaseio.com",
-    projectId: "school-rutine",
-    storageBucket: "school-rutine.firebasestorage.app",
-    messagingSenderId: "132341037681",
-    appId: "1:132341037681:web:94469afd07bd1daf6a79d0",
-    measurementId: "G-X2TZLEWRJX"
-  };
+        apiKey: "AIzaSyCceMHV_tMf7CDQUjEhoPiByezOdhc955o",
+        authDomain: "school-rutine.firebaseapp.com",
+        databaseURL: "https://school-rutine-default-rtdb.firebaseio.com",
+        projectId: "school-rutine",
+        storageBucket: "school-rutine.firebasestorage.app",
+        messagingSenderId: "132341037681",
+        appId: "1:132341037681:web:94469afd07bd1daf6a79d0",
+        measurementId: "G-X2TZLEWRJX"
+    };
     
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
@@ -253,16 +293,15 @@
     const schoolId = urlParams.get('id') || 'default_exam_school';
     const dbRef = database.ref('exams/' + schoolId);
 
-    let masterPass = "12345678"; // Default password
+    let masterPass = "12345678";
 
     function verifyPass() {
         const input = document.getElementById('passInput').value;
-        // Simple auth for demo. In production, use Firebase Auth
         if(input === masterPass) {
             document.getElementById('lock-screen').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
             sessionStorage.setItem('unlocked', 'true');
-            loadFromCloud(); // Load data after unlock
+            loadFromCloud();
         } else { 
             document.getElementById('error-msg').style.display = 'block'; 
         }
@@ -274,8 +313,6 @@
     }
     
     function changePass() {
-        // Note: Changing password here only affects the local variable for this session
-        // To make it permanent, you'd need to store it in Firebase too.
         alert("অনলাইন ভার্সনে পাসওয়ার্ড পরিবর্তন ফিচারটি এখন ডিসেবল আছে।");
     }
 
@@ -294,9 +331,97 @@
         document.getElementById('toggleText').innerText = isHidden ? 'সেটিংস দেখান' : 'সেটিংস লুকান';
     }
 
-    // ==================== DATA LOGIC ====================
+    // ==================== FONT SIZE CONTROLS ====================
+    
+    function updateFontSize(id, value) {
+        document.documentElement.style.setProperty('--' + id, value + 'pt');
+        document.getElementById(id).value = value;
+        document.getElementById(id + 'Val').innerText = value + 'pt';
+    }
 
-    // Save to Firebase
+    // ==================== AUTO-LINK & SYNC FUNCTIONS ====================
+    
+    function generateOptionsFromText(text, selectedValue) {
+        let options = '<option value=""></option>';
+        if (text && text.trim()) {
+            const items = [...new Set(
+                text.split(',').map(item => item.trim()).filter(item => item !== '')
+            )];
+            
+            items.forEach(item => {
+                const selected = (item === selectedValue) ? 'selected' : '';
+                options += `<option value="${item}" ${selected}>${item}</option>`;
+            });
+        }
+        return options;
+    }
+
+    function updateStaffLists(value) {
+        saveData();
+        document.querySelectorAll('#rBody .staff-select').forEach(select => {
+            const currentValue = select.value;
+            select.innerHTML = generateOptionsFromText(value, currentValue);
+        });
+        // Update Register Staff list as well
+        document.querySelectorAll('#regBody .staff-select').forEach(select => {
+            const currentValue = select.value;
+            select.innerHTML = generateOptionsFromText(value, currentValue);
+        });
+    }
+
+    function updateDesignationLists(value) {
+        saveData();
+        document.querySelectorAll('#rBody .desig-select').forEach(select => {
+            const currentValue = select.value;
+            select.innerHTML = generateOptionsFromText(value, currentValue);
+        });
+    }
+
+    function updateInstituteLists(value) {
+        saveData();
+        document.querySelectorAll('#rBody .inst-select').forEach(select => {
+            const currentValue = select.value;
+            select.innerHTML = generateOptionsFromText(value, currentValue);
+        });
+    }
+
+    // ** SYNC LOGIC: Roster -> Register **
+    function syncRegisterRow(rosterRow) {
+        const rBody = document.getElementById('rBody');
+        const regBody = document.getElementById('regBody');
+        
+        // Find index
+        const index = Array.from(rBody.children).indexOf(rosterRow);
+        if (index === -1) return;
+
+        // Ensure register has this row
+        let regRow = regBody.children[index];
+        if (!regRow) {
+            addRow('reg'); // Add if missing
+            regRow = regBody.children[index];
+        }
+
+        if (regRow) {
+            const room = rosterRow.querySelector('.room-field').value;
+            const staff = rosterRow.querySelector('.staff-select').value;
+
+            regRow.querySelector('.room-field').value = room;
+            const regStaffSelect = regRow.querySelector('.staff-select');
+            
+            // Ensure the option exists in the select
+            if (staff && !regStaffSelect.querySelector(`option[value="${staff}"]`)) {
+                const option = document.createElement('option');
+                option.value = staff;
+                option.text = staff;
+                regStaffSelect.add(option);
+            }
+            regStaffSelect.value = staff;
+        }
+        saveData();
+    }
+
+    // ==================== DATA SAVE & LOAD ====================
+
     function saveData() {
         const data = {
             seat: { 
@@ -319,13 +444,16 @@
                 rows: [] 
             },
             reg: { 
-                sub: document.getElementById('regSub').value, 
-                date: document.getElementById('regDate').value, 
                 rows: [] 
             },
             font: {
                 family: document.getElementById('fontSelector').value,
-                height: document.getElementById('lineHeightControl').value
+                height: document.getElementById('lineHeightControl').value,
+                fsInst: document.getElementById('fsInst').value,
+                fsExam: document.getElementById('fsExam').value,
+                fsSub: document.getElementById('fsSub').value,
+                fsClass: document.getElementById('fsClass').value,
+                fsRoll: document.getElementById('fsRoll').value
             }
         };
         
@@ -340,8 +468,6 @@
         
         document.querySelectorAll('#regBody tr').forEach(tr => {
             data.reg.rows.push({ 
-                r: tr.querySelector('.room-field')?.value || '', 
-                s: tr.querySelector('.staff-select')?.value || '', 
                 g: tr.querySelector('.g-field')?.value || '', 
                 u: tr.querySelector('.u-field')?.value || '', 
                 f: tr.querySelector('.f-field')?.value || '' 
@@ -352,7 +478,6 @@
         updateView(data);
     }
 
-    // Load from Firebase
     function loadFromCloud() {
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
@@ -360,9 +485,7 @@
                 populateForm(data);
                 updateView(data);
             } else {
-                // First time init
                 addRow('roster');
-                addRow('reg');
             }
         });
     }
@@ -380,29 +503,41 @@
             document.getElementById('sEnd').value = data.seat.end || '20';
         }
         
-        if(data.roster) {
-            document.getElementById('rSub').value = data.roster.sub || ''; 
-            document.getElementById('rDate').value = data.roster.date || '';
-            document.getElementById('rStaff').value = data.roster.staff || ''; 
-            document.getElementById('rDesig').value = data.roster.desig || '';
-            document.getElementById('rInstList').value = data.roster.insts || '';
-            
-            document.getElementById('rBody').innerHTML = ''; // Clear existing
-            if(data.roster.rows) data.roster.rows.forEach(r => addRow('roster', r));
+        // Populate Roster
+        document.getElementById('rSub').value = data.roster?.sub || ''; 
+        document.getElementById('rDate').value = data.roster?.date || '';
+        document.getElementById('rStaff').value = data.roster?.staff || ''; 
+        document.getElementById('rDesig').value = data.roster?.desig || '';
+        document.getElementById('rInstList').value = data.roster?.insts || '';
+        
+        document.getElementById('rBody').innerHTML = '';
+        document.getElementById('regBody').innerHTML = '';
+
+        if(data.roster && data.roster.rows && data.roster.rows.length) {
+            data.roster.rows.forEach((r, index) => {
+                // Add Roster Row
+                addRow('roster', r);
+                
+                // Add/Register Row with synced data
+                const regData = data.reg?.rows?.[index] || {};
+                addRow('reg', { r: r.r, s: r.s, ...regData });
+            });
+        } else {
+            addRow('roster');
         }
         
-        if(data.reg) {
-            document.getElementById('regSub').value = data.reg.sub || ''; 
-            document.getElementById('regDate').value = data.reg.date || '';
-            
-            document.getElementById('regBody').innerHTML = ''; // Clear existing
-            if(data.reg.rows) data.reg.rows.forEach(r => addRow('reg', r));
-            calculateTotals();
-        }
+        calculateTotals();
 
+        // Populate Fonts
         if(data.font) {
             if(data.font.family) changeGoogleFont(data.font.family);
             if(data.font.height) updateLineHeight(data.font.height);
+            
+            if(data.font.fsInst) updateFontSize('fsInst', data.font.fsInst);
+            if(data.font.fsExam) updateFontSize('fsExam', data.font.fsExam);
+            if(data.font.fsSub) updateFontSize('fsSub', data.font.fsSub);
+            if(data.font.fsClass) updateFontSize('fsClass', data.font.fsClass);
+            if(data.font.fsRoll) updateFontSize('fsRoll', data.font.fsRoll);
         }
     }
 
@@ -413,8 +548,8 @@
         document.querySelectorAll('.display-exam').forEach(el => el.innerText = data.seat.exam || "পরীক্ষার নাম");
         document.getElementById('rSubView').innerText = data.roster?.sub || "...";
         document.getElementById('rDateView').innerText = data.roster?.date || "...";
-        document.getElementById('regSubView').innerText = data.reg?.sub || "...";
-        document.getElementById('regDateView').innerText = data.reg?.date || "...";
+        document.getElementById('regSubView').innerText = data.roster?.sub || "...";
+        document.getElementById('regDateView').innerText = data.roster?.date || "...";
         
         const cont = document.getElementById('seat-container');
         cont.innerHTML = '';
@@ -473,57 +608,117 @@
     function clearData() { 
         if(confirm("সব ডেটা কি মুছে ফেলতে চান?")) { 
             dbRef.remove();
-            location.reload(); 
+            setTimeout(() => location.reload(), 500);
         } 
     }
 
-    // ==================== HELPER FUNCTIONS ====================
+    // ==================== BACKUP & RESTORE ====================
+    function backupData() {
+        dbRef.once('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) {
+                alert('কোনো ডেটা নেই!');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `exam_backup_${schoolId}_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    function restoreBackup() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    const data = JSON.parse(ev.target.result);
+                    if (confirm('ব্যাকআপ রিস্টোর করলে বর্তমান ডেটা মুছে যাবে। আপনি কি নিশ্চিত?')) {
+                        dbRef.set(data).then(() => {
+                            alert('ব্যাকআপ সফলভাবে রিস্টোর হয়েছে!');
+                        }).catch(err => {
+                            alert('রিস্টোর করতে সমস্যা হয়েছে: ' + err.message);
+                        });
+                    }
+                } catch (err) {
+                    alert('ফাইলটি সঠিক JSON ফরম্যাটে নেই!');
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
+    }
+
+    // ==================== ROW MANAGEMENT ====================
     
     function addRow(type, data = null) {
         const body = type === 'roster' ? document.getElementById('rBody') : document.getElementById('regBody');
         const tr = document.createElement('tr');
+        
         if(type === 'roster') {
-            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data && data.r ? data.r : ''}" oninput="saveData()"></td>
-                            <td><select class="table-in staff-select" onchange="saveData()">${getOpts('rStaff', data && data.s ? data.s : '')}</select></td>
-                            <td><select class="table-in desig-select" onchange="saveData()">${getOpts('rDesig', data && data.d ? data.d : '')}</select></td>
-                            <td><select class="table-in inst-select" onchange="saveData()">${getOpts('rInstList', data && data.i ? data.i : '')}</select></td>
-                            <td><button class="del-btn no-print" onclick="removeRow(this)">X</button></td>`;
+            const staffValue = data && data.s ? data.s : '';
+            const desigValue = data && data.d ? data.d : '';
+            const instValue = data && data.i ? data.i : '';
+            const roomValue = data && data.r ? data.r : '';
+            
+            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${roomValue}" oninput="saveData(); syncRegisterRow(this.closest('tr'))"></td>
+                            <td><select class="table-in staff-select" onchange="saveData(); syncRegisterRow(this.closest('tr'))">${generateOptionsFromText(document.getElementById('rStaff').value, staffValue)}</select></td>
+                            <td><select class="table-in desig-select" onchange="saveData()">${generateOptionsFromText(document.getElementById('rDesig').value, desigValue)}</select></td>
+                            <td><select class="table-in inst-select" onchange="saveData()">${generateOptionsFromText(document.getElementById('rInstList').value, instValue)}</select></td>
+                            <td><button class="del-btn no-print" onclick="removeRow(this, 'roster')">X</button></td>`;
         } else {
+            // Register Row
+            const roomValue = data && data.r ? data.r : '';
+            const staffValue = data && data.s ? data.s : '';
             const gVal = data && data.g ? data.g : '';
             const uVal = data && data.u ? data.u : '';
             const fVal = data && data.f ? data.f : '';
-            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${data && data.r ? data.r : ''}" oninput="saveData()"></td>
-                            <td><select class="table-in staff-select" onchange="saveData()">${getOpts('rStaff', data && data.s ? data.s : '')}</select></td>
+            
+            tr.innerHTML = `<td><input type="text" class="table-in room-field" value="${roomValue}" readonly style="background:#eee; font-weight:bold;"></td>
+                            <td><select class="table-in staff-select">${generateOptionsFromText(document.getElementById('rStaff').value, staffValue)}</select></td>
                             <td><input type="number" class="table-in g-field" value="${gVal}" oninput="calc(this)"></td>
                             <td><input type="number" class="table-in u-field" value="${uVal}" oninput="calc(this)"></td>
                             <td><input type="text" class="table-in f-field" value="${fVal}" readonly></td>
-                            <td><button class="del-btn no-print" onclick="removeRow(this)">X</button></td>`;
+                            <td></td>`;
         }
+        
         body.appendChild(tr);
-        if(type === 'reg') calculateTotals();
-    }
-
-    function getOpts(id, sel) {
-        let o = '<option value=""></option>';
-        let area = document.getElementById(id);
-        if(area && area.value) {
-            area.value.split(',').forEach(t => { 
-                let v = t.trim(); 
-                if(v) o += `<option value="${v}" ${v===sel ? 'selected' : ''}>${v}</option>`; 
-            });
+        
+        if(type === 'reg') {
+            calculateTotals();
         }
-        return o;
     }
 
-    function updateAllSelects() {
-        document.querySelectorAll('.staff-select').forEach(s => { let sv = s.value; s.innerHTML = getOpts('rStaff', sv); });
-        document.querySelectorAll('.desig-select').forEach(d => { let dv = d.value; d.innerHTML = getOpts('rDesig', dv); });
-        document.querySelectorAll('.inst-select').forEach(i => { let iv = i.value; i.innerHTML = getOpts('rInstList', iv); });
-    }
+    function removeRow(btn, type) {
+        if(confirm("সারিটি ডিলিট করতে চান? (এটি রেজিস্টার থেকেও মুছে যাবে)")) {
+            const rBody = document.getElementById('rBody');
+            const regBody = document.getElementById('regBody');
+            const tr = btn.closest('tr');
+            const index = Array.from(rBody.children).indexOf(tr);
 
-    function removeRow(btn) {
-        if(confirm("সারিটি ডিলিট করতে চান?")) {
-            btn.closest('tr').remove();
+            // Remove from Roster
+            tr.remove();
+            
+            // Remove corresponding Register row
+            if (index > -1 && regBody.children[index]) {
+                regBody.children[index].remove();
+            }
+
             saveData(); 
             calculateTotals();
         }
