@@ -55,14 +55,14 @@
         .seat-card { height: 53mm; border: 1.2px solid #000; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; text-align: center; page-break-inside: avoid; break-inside: avoid; background: white; border-radius: 1px; overflow: hidden; }
         .inner-border { margin: 2mm; border: 1px solid #000; height: calc(100% - 4mm); display: flex; flex-direction: column; justify-content: center; padding: 2px; overflow: hidden; }
         
-        /* Font Sizes controlled by JS/CSS Variables */
+        /* Font Sizes - CSS Variables (Note: Names must match JS exactly) */
         .seat-card .inst-name, .seat-card .exam-name, .seat-card .sub-date, .seat-card .class-info, .seat-card .roll-number { font-weight: bold !important; font-family: inherit; line-height: var(--line-height, 1.2); }
         
-        .seat-card .inst-name { border-bottom: 1px solid #000; margin: 0 2px 2px; padding-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-inst, 14pt); }
-        .seat-card .exam-name { margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-exam, 12pt); }
-        .seat-card .sub-date { margin: 1px 0; line-height: var(--line-height, 1.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-sub, 10pt); }
-        .seat-card .class-info { margin: 1px 0; line-height: var(--line-height, 1.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-class, 10pt); }
-        .seat-card .roll-number { margin: 2px 0 0; line-height: var(--line-height, 1.2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-roll, 22pt); }
+        .seat-card .inst-name { border-bottom: 1px solid #000; margin: 0 2px 2px; padding-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fsInst, 14pt); }
+        .seat-card .exam-name { margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fsExam, 12pt); }
+        .seat-card .sub-date { margin: 1px 0; line-height: var(--line-height, 1.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fsSub, 10pt); }
+        .seat-card .class-info { margin: 1px 0; line-height: var(--line-height, 1.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fsClass, 10pt); }
+        .seat-card .roll-number { margin: 2px 0 0; line-height: var(--line-height, 1.2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--fsRoll, 22pt); }
 
         /* Font Control Panel */
         .font-control { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px; max-height: 700px; overflow-y: auto; border: 1px solid #ddd; }
@@ -84,7 +84,7 @@
             .table-in { border: none !important; background: transparent !important; }
             body, .seat-card, .container, table, th, td { font-family: var(--selected-font, 'Hind Siliguri', Arial, sans-serif) !important; }
             
-            /* ড্রপডাউন তীর চিহ্ন আড়াল করার জন্য নতুন CSS */
+            /* ড্রপডাউন তীর চিহ্ন আড়াল করার জন্য CSS */
             select.table-in {
                 -webkit-appearance: none;
                 -moz-appearance: none;
@@ -334,9 +334,15 @@
     // ==================== FONT SIZE CONTROLS ====================
     
     function updateFontSize(id, value) {
+        // Set CSS Variable (e.g., --fsInst)
         document.documentElement.style.setProperty('--' + id, value + 'pt');
-        document.getElementById(id).value = value;
-        document.getElementById(id + 'Val').innerText = value + 'pt';
+        
+        // Update Slider Position
+        if(document.getElementById(id)) document.getElementById(id).value = value;
+        
+        // Update Label Text (e.g., fsInstVal)
+        const label = document.getElementById(id + 'Val');
+        if(label) label.innerText = value + 'pt';
     }
 
     // ==================== AUTO-LINK & SYNC FUNCTIONS ====================
@@ -533,6 +539,7 @@
             if(data.font.family) changeGoogleFont(data.font.family);
             if(data.font.height) updateLineHeight(data.font.height);
             
+            // Apply font sizes from DB
             if(data.font.fsInst) updateFontSize('fsInst', data.font.fsInst);
             if(data.font.fsExam) updateFontSize('fsExam', data.font.fsExam);
             if(data.font.fsSub) updateFontSize('fsSub', data.font.fsSub);
